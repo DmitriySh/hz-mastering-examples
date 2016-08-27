@@ -1,0 +1,22 @@
+<hazelcast-client xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://www.hazelcast.com/schema/client-config
+                               http://www.hazelcast.com/schema/client-config/hazelcast-client-config-3.6.xsd"
+                  xmlns="http://www.hazelcast.com/schema/client-config">
+
+    <import resource="classpath:hazelcast-client-group.xml"/>
+
+    <network>
+        <cluster-members>
+            <address>0.0.0.0</address>
+        </cluster-members>
+
+        <smart-routing>true</smart-routing>
+        <connection-timeout>5000</connection-timeout>
+        <connection-attempt-period>3000</connection-attempt-period>
+        <connection-attempt-limit>10</connection-attempt-limit>
+    </network>
+
+    <properties>
+        <property name="hazelcast.logging.type">slf4j</property>
+    </properties>
+</hazelcast-client>

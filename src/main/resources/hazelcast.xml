@@ -1,0 +1,128 @@
+<hazelcast
+        xsi:schemaLocation="http://www.hazelcast.com/schema/config http://www.hazelcast.com/schema/config/hazelcast-config-3.6.xsd"
+        xmlns="http://www.hazelcast.com/schema/config"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <import resource="classpath:hazelcast-group.xml"/>
+
+    <network>
+        <port auto-increment="true">5701</port>
+        <join>
+            <multicast enabled="true"/>
+        </join>
+    </network>
+
+    <properties>
+        <property name="hazelcast.logging.type">slf4j</property>
+    </properties>
+
+    <map name="testmap*">
+        <time-to-live-seconds>10</time-to-live-seconds>
+    </map>
+
+    <map name="mapBin">
+        <in-memory-format>BINARY</in-memory-format>
+        <backup-count>0</backup-count>
+        <async-backup-count>1</async-backup-count>
+        <read-backup-data>true</read-backup-data>
+    </map>
+
+    <map name="mapBackup1">
+        <backup-count>1</backup-count>
+        <async-backup-count>0</async-backup-count>
+        <read-backup-data>false</read-backup-data>
+    </map>
+
+    <map name="mapLock1">
+        <backup-count>1</backup-count>
+        <async-backup-count>0</async-backup-count>
+        <read-backup-data>false</read-backup-data>
+
+        <max-size policy="PER_NODE">271</max-size>
+        <eviction-policy>LRU</eviction-policy>
+        <max-idle-seconds>3</max-idle-seconds>
+    </map>
+
+    <map name="mapEvict1">
+        <max-size policy="PER_NODE">271</max-size>
+        <eviction-policy>NONE</eviction-policy>
+        <max-idle-seconds>5</max-idle-seconds>
+    </map>
+
+    <map name="mapEvict2">
+        <max-size policy="PER_NODE">271</max-size>
+        <eviction-policy>LRU</eviction-policy>
+        <min-eviction-check-millis>0</min-eviction-check-millis>
+        <eviction-percentage>10</eviction-percentage>
+    </map>
+
+    <map name="mapNearCash">
+        <near-cache name="default">
+            <max-size>1000</max-size>
+            <eviction-policy>LRU</eviction-policy>
+            <max-idle-seconds>120</max-idle-seconds>
+            <invalidate-on-change>true</invalidate-on-change>
+            <cache-local-entries>false</cache-local-entries>
+            <in-memory-format>OBJECT</in-memory-format>
+        </near-cache>
+    </map>
+
+    <map name="mapMapStore">
+        <in-memory-format>BINARY</in-memory-format>
+        <map-store enabled="true" initial-mode="EAGER">
+            <class-name>ru.shishmakov.hz.EmployeeMapStrore</class-name>
+        </map-store>
+    </map>
+
+    <map name="mapObj">
+        <in-memory-format>OBJECT</in-memory-format>
+    </map>
+
+    <multimap name="multiMap1">
+        <binary>true</binary>
+        <backup-count>1</backup-count>
+        <async-backup-count>0</async-backup-count>
+        <value-collection-type>SET</value-collection-type>
+    </multimap>
+
+    <replicatedmap name="replicatedMap1">
+        <in-memory-format>BINARY</in-memory-format>
+        <async-fillup>true</async-fillup>
+    </replicatedmap>
+
+    <semaphore name="semph">
+        <initial-permits>3</initial-permits>
+    </semaphore>
+
+    <queue name="queue">
+        <max-size>100</max-size>
+    </queue>
+
+    <ringbuffer name="ring1">
+        <capacity>8</capacity>
+        <time-to-live-seconds>300</time-to-live-seconds>
+    </ringbuffer>
+
+    <jobtracker name="jobTracker1">
+        <max-thread-size>0</max-thread-size>
+        <queue-size>0</queue-size>
+        <chunk-size>2000</chunk-size>
+        <communicate-stats>true</communicate-stats>
+        <topology-changed-strategy>CANCEL_RUNNING_OPERATION</topology-changed-strategy>
+    </jobtracker>
+
+    <executor-service name="executor">
+        <pool-size>5</pool-size>
+        <statistics-enabled>true</statistics-enabled>
+    </executor-service>
+
+    <reliable-topic name="reliableTopic">
+        <statistics-enabled>true</statistics-enabled>
+        <topic-overload-policy>BLOCK</topic-overload-policy>
+        <read-batch-size>20</read-batch-size>
+    </reliable-topic>
+    <ringbuffer name="reliableTopic">
+        <capacity>10000</capacity>
+    </ringbuffer>
+
+</hazelcast>

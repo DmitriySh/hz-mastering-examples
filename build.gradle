@@ -1,0 +1,27 @@
+apply plugin: 'java'
+
+group = "ru.shishmakov"
+version = 0.1
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+repositories {
+    mavenLocal()
+    jcenter()
+}
+
+dependencies {
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1+'
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7+'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3+'
+    compile group: 'commons-io', name: 'commons-io', version: '2.+'
+    compile group: 'com.hazelcast', name: 'hazelcast', version: '3.6+'
+    compile group: 'com.hazelcast', name: 'hazelcast-client', version: '3.6+'
+
+    testCompile 'junit:junit:4+'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.13'
+}
