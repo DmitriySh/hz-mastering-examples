@@ -1,0 +1,33 @@
+# Java class files
+*.class
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Intellij
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Maven
+log/
+target/
+
+# Gradle
+.gradle/
+local.properties
+*/build/
+
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# Project files
+log_test.txt
+log.txt
+
