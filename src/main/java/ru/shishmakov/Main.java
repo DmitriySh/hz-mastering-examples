@@ -3,6 +3,7 @@ package ru.shishmakov;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientNetworkConfig;
+import com.hazelcast.client.config.SocketOptions;
 import com.hazelcast.client.config.XmlClientConfigBuilder;
 import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
@@ -77,15 +78,21 @@ public class Main {
     private static HazelcastInstance loadClientFromProgrammatically() {
         ClientConfig config = new ClientConfig();
         config.setProperty("hazelcast.logging.type", "slf4j");
+
         GroupConfig group = config.getGroupConfig();
         group.setName(GROUP_NAME);
         group.setPassword(GROUP_PASSWORD);
+
         ClientNetworkConfig network = config.getNetworkConfig();
         network.addAddress("0.0.0.0");
         network.setSmartRouting(true);
         network.setConnectionTimeout(5000);
         network.setConnectionAttemptPeriod(3000);
         network.setConnectionAttemptLimit(10);
+
+        SocketOptions so = network.getSocketOptions();
+        so.setReuseAddress(true);
+        so.setTcpNoDelay(true);
         return HazelcastClient.newHazelcastClient(config);
     }
 
@@ -97,6 +104,13 @@ public class Main {
         return HazelcastClient.newHazelcastClient();
     }
 
+    private static HazelcastInstance loadFromFileDirectly() {
+        Config config = new ClasspathXmlConfig("hazelcast.xml");
+//        Config config = new FileSystemXmlConfig("hazelcast.xml");
+//        Config config = new UrlXmlConfig("http://foo/hazelcast.xml");
+        return Hazelcast.newHazelcastInstance(config);
+    }
+
     private static HazelcastInstance loadClientFromFileDirectly() {
         try {
             XmlClientConfigBuilder xmlConfig = new XmlClientConfigBuilder("hazelcast-client.xml");
@@ -104,13 +118,6 @@ public class Main {
         } catch (IOException e) {
             throw new IllegalStateException("Error with client config file", e);
         }
-    }
-
-    private static HazelcastInstance loadFromFileDirectly() {
-        Config config = new ClasspathXmlConfig("hazelcast.xml");
-//        Config config = new FileSystemXmlConfig("hazelcast.xml");
-//        Config config = new UrlXmlConfig("http://foo/hazelcast.xml");
-        return Hazelcast.newHazelcastInstance(config);
     }
 
 }
