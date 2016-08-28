@@ -20,7 +20,7 @@ target/
 .gradle/
 local.properties
 */build/
-
+build/
 
 # Package Files #
 *.jar
