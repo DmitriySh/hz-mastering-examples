@@ -35,17 +35,19 @@ public class Main {
         HazelcastInstance hz1 = buildHZInstance();
         HazelcastInstance hz2 = buildHZInstance();
 
+        try {
 //        Chapter2.doExamples(hz1, hz2);
 //        Chapter3.doExamples(hz1, hz2, service);
 //        Chapter4.doExamples(hz1, hz2, service);
 //        Chapter5.doExamples(hz1, hz2, service);
 //        Chapter6.doExamples(hz1, hz2, service);
 //        Chapter7.doExamples(hz1, hz2, service);
-        Chapter8.doExamples(hz1, hz2, service);
-
-        service.shutdownNow();
-        service.awaitTermination(15, TimeUnit.SECONDS);
-        Hazelcast.shutdownAll();
+            Chapter8.doExamples(hz1, hz2, service);
+        } finally {
+            service.shutdownNow();
+            service.awaitTermination(15, TimeUnit.SECONDS);
+            Hazelcast.shutdownAll();
+        }
     }
 
     public static HazelcastInstance buildHZInstance() {
@@ -76,6 +78,11 @@ public class Main {
     }
 
     private static HazelcastInstance loadClientFromProgrammatically() {
+        ClientConfig config = buildClientConfig();
+        return HazelcastClient.newHazelcastClient(config);
+    }
+
+    public static ClientConfig buildClientConfig() {
         ClientConfig config = new ClientConfig();
         config.setProperty("hazelcast.logging.type", "slf4j");
 
@@ -93,7 +100,7 @@ public class Main {
         SocketOptions so = network.getSocketOptions();
         so.setReuseAddress(true);
         so.setTcpNoDelay(true);
-        return HazelcastClient.newHazelcastClient(config);
+        return config;
     }
 
     private static HazelcastInstance loadFromClassPath() {
