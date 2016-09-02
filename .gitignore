@@ -30,4 +30,4 @@ build/
 # Project files
 log_test.txt
 log.txt
-
+*.DS_Store
