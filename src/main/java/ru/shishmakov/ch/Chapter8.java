@@ -17,7 +17,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static ru.shishmakov.Main.*;
+import static ru.shishmakov.hz.HzClientConfig.buildClientConfig;
+import static ru.shishmakov.hz.HzClientConfig.buildHZClientInstance;
+import static ru.shishmakov.hz.HzClusterConfig.buildHZInstance;
 
 /**
  * Created by dima on 21.08.16.

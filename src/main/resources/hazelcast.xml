@@ -22,9 +22,17 @@
 
     <map name="mapBin">
         <in-memory-format>BINARY</in-memory-format>
-        <backup-count>0</backup-count>
-        <async-backup-count>1</async-backup-count>
-        <read-backup-data>true</read-backup-data>
+        <backup-count>1</backup-count>
+        <async-backup-count>0</async-backup-count>
+        <read-backup-data>false</read-backup-data>
+    </map>
+
+
+    <map name="mapObj">
+        <in-memory-format>OBJECT</in-memory-format>
+        <backup-count>1</backup-count>
+        <async-backup-count>0</async-backup-count>
+        <read-backup-data>false</read-backup-data>
     </map>
 
     <map name="mapBackup1">
@@ -72,10 +80,6 @@
         <map-store enabled="true" initial-mode="EAGER">
             <class-name>ru.shishmakov.hz.EmployeeMapStrore</class-name>
         </map-store>
-    </map>
-
-    <map name="mapObj">
-        <in-memory-format>OBJECT</in-memory-format>
     </map>
 
     <multimap name="multiMap1">

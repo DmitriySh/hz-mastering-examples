@@ -10,7 +10,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.*;
 
-import static ru.shishmakov.Main.buildHZInstance;
+import static ru.shishmakov.hz.HzClusterConfig.buildHZInstance;
+
 
 /**
  * Created by dima on 14.08.16.
