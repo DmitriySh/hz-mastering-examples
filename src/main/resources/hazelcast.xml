@@ -129,4 +129,14 @@
         <capacity>10000</capacity>
     </ringbuffer>
 
+    <serialization>
+        <data-serializable-factories>
+            <data-serializable-factory factory-id="100">ru.shishmakov.hz.DSerializableFactory
+            </data-serializable-factory>
+        </data-serializable-factories>
+        <portable-factories>
+            <portable-factory factory-id="200">ru.shishmakov.hz.PSerializableFactory</portable-factory>
+        </portable-factories>
+    </serialization>
+
 </hazelcast>

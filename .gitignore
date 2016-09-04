@@ -30,4 +30,6 @@ build/
 # Project files
 log_test.txt
 log.txt
+
+#Mac OS
 *.DS_Store
