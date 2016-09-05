@@ -12,15 +12,19 @@ public class PSerializableFactory implements PortableFactory {
     public static final int FACTORY_ID_200 = 200;
     public static final int CLASS_ID_201 = 201;
     public static final int CLASS_ID_202 = 202;
+    public static final int CLASS_ID_203 = 203;
 
     @Override
     public Portable create(int classId) {
-        if (classId == CLASS_ID_201) {
-            return new Chapter9.PersonPortable1();
+        switch (classId) {
+            case CLASS_ID_201:
+                return new Chapter9.PersonPortable1();
+            case CLASS_ID_202:
+                return new Chapter9.PersonPortable2();
+            case CLASS_ID_203:
+                return new Chapter9.PersonPortable3();
+            default:
+                throw new IllegalStateException("Class id: " + classId + "not found");
         }
-        if (classId == CLASS_ID_202) {
-            return new Chapter9.PersonPortable2();
-        }
-        throw new IllegalStateException("Class id: " + classId + "not found");
     }
 }

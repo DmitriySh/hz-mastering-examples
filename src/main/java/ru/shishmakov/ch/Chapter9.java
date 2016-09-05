@@ -27,10 +27,17 @@ public class Chapter9 {
 
     public static void doExamples(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
 //        useSerializition(hz1, hz2);
-        useExternalization(hz1, hz2);
+//        useExternalization(hz1, hz2);
 //        useDataSerializable(hz1, hz2);
 //        useIdentifiedDataSerializable(hz1, hz2);
 //        usePortable(hz1, hz2);
+        writePortableField(hz1, hz2);
+    }
+
+    private static void writePortableField(HazelcastInstance hz1, HazelcastInstance hz2) {
+        logger.debug("-- HZ write Portable field --");
+
+        processKeyMap(hz1, hz2, new PersonPortable3(new PersonPortable2("Igor", "Alexandrovich", "Shishmakov", "History")));
     }
 
     private static void usePortable(HazelcastInstance hz1, HazelcastInstance hz2) {
@@ -88,42 +95,31 @@ public class Chapter9 {
         mapObj.destroy();
     }
 
-    public static class PersonPortable1 extends Person<PersonPortable1> implements Portable {
+    public static class PersonPortable3 extends Person implements Portable {
 
-        private String secondName;
+        private PersonPortable2 portable;
 
-        public PersonPortable1() {
+        public PersonPortable3() {
             super();
             /* need to be */
         }
 
-        public PersonPortable1(String name, String secondName, String surname, String hobby) {
-            super(name, surname, hobby);
-            this.secondName = secondName;
+        public PersonPortable3(PersonPortable2 portable) {
+            super(portable.getName(), portable.getSurname(), portable.getHobby());
+            this.portable = portable;
         }
 
         @Override
         public void writePortable(PortableWriter writer) throws IOException {
-            writer.writeUTF("name", name);
-            writer.writeUTF("secondName", secondName);
-            logger.debug("-->  write fields name: {}, secondName: {}", name, secondName);
+            if (portable == null) writer.writeNullPortable("portable", FACTORY_ID_200, CLASS_ID_202);
+            else writer.writePortable("portable", portable);
+            logger.debug("-->  write field portable: {}", portable);
         }
 
         @Override
         public void readPortable(PortableReader reader) throws IOException {
-            this.secondName = reader.readUTF("secondName");
-            this.name = reader.readUTF("name");
-            logger.debug("<--  read fields name: {}, secondName: {}", name, secondName);
-        }
-
-        @Override
-        protected void addToString(ToStringBuilder builder) {
-            builder.append("secondName", secondName);
-        }
-
-        @Override
-        protected boolean addToEquals(PersonPortable1 that) {
-            return Objects.equals(secondName, that.secondName);
+            this.portable = reader.readPortable("portable");
+            logger.debug("<--  read field portable: {}", portable);
         }
 
         @Override
@@ -133,11 +129,32 @@ public class Chapter9 {
 
         @Override
         public int getClassId() {
-            return CLASS_ID_201;
+            return CLASS_ID_203;
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this, SHORT_PREFIX_STYLE)
+                    .append("name", this.name).append("surname", surname)
+                    .append("portable", portable)
+                    .append("hobby", hobby)
+                    .append("password", password)
+                    .toString();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || !(o instanceof PersonPortable3)) return false;
+            PersonPortable3 that = (PersonPortable3) o;
+            return Objects.equals(name, that.name) &&
+                    Objects.equals(portable, that.portable) &&
+                    Objects.equals(surname, that.surname) &&
+                    Objects.equals(hobby, that.hobby);
         }
     }
 
-    public static class PersonPortable2 extends Person<PersonPortable2> implements Portable {
+    public static class PersonPortable2 extends Person implements Portable {
 
         private String secondName;
 
@@ -166,13 +183,63 @@ public class Chapter9 {
         }
 
         @Override
-        protected void addToString(ToStringBuilder builder) {
-            builder.append("secondName", secondName);
+        public int getFactoryId() {
+            return FACTORY_ID_200;
         }
 
         @Override
-        protected boolean addToEquals(PersonPortable2 that) {
-            return Objects.equals(secondName, that.secondName);
+        public int getClassId() {
+            return CLASS_ID_202;
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this, SHORT_PREFIX_STYLE)
+                    .append("name", this.name).append("surname", surname)
+                    .append("secondName", secondName)
+                    .append("hobby", hobby)
+                    .append("password", password)
+                    .toString();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || !(o instanceof PersonPortable2)) return false;
+            PersonPortable2 that = (PersonPortable2) o;
+            return Objects.equals(name, that.name) &&
+                    Objects.equals(secondName, that.secondName) &&
+                    Objects.equals(surname, that.surname) &&
+                    Objects.equals(hobby, that.hobby);
+        }
+    }
+
+    public static class PersonPortable1 extends Person implements Portable {
+
+        private String secondName;
+
+        public PersonPortable1() {
+            super();
+            /* need to be */
+        }
+
+        public PersonPortable1(String name, String secondName, String surname, String hobby) {
+            super(name, surname, hobby);
+            this.secondName = secondName;
+        }
+
+        @Override
+        public void writePortable(PortableWriter writer) throws IOException {
+            writer.writeUTF("name", name);
+            writer.writeUTF("secondName", secondName);
+            logger.debug("-->  write fields name: {}, secondName: {}", name, secondName);
+        }
+
+        @Override
+        public void readPortable(PortableReader reader) throws IOException {
+            this.secondName = reader.readUTF("secondName");
+            this.name = reader.readUTF("name");
+            logger.debug("<--  read fields name: {}, secondName: {}", name, secondName);
         }
 
         @Override
@@ -182,11 +249,32 @@ public class Chapter9 {
 
         @Override
         public int getClassId() {
-            return CLASS_ID_202;
+            return CLASS_ID_201;
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this, SHORT_PREFIX_STYLE)
+                    .append("name", this.name).append("surname", surname)
+                    .append("secondName", secondName)
+                    .append("hobby", hobby)
+                    .append("password", password)
+                    .toString();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || !(o instanceof PersonPortable1)) return false;
+            PersonPortable1 that = (PersonPortable1) o;
+            return Objects.equals(name, that.name) &&
+                    Objects.equals(secondName, that.secondName) &&
+                    Objects.equals(surname, that.surname) &&
+                    Objects.equals(hobby, that.hobby);
         }
     }
 
-    public static class PersonIdentDataSerial1 extends Person<PersonIdentDataSerial1> implements IdentifiedDataSerializable {
+    public static class PersonIdentDataSerial1 extends Person implements IdentifiedDataSerializable {
 
         public PersonIdentDataSerial1() {
             super();
@@ -220,7 +308,7 @@ public class Chapter9 {
         }
     }
 
-    public static class PersonIdentDataSerial2 extends Person<PersonIdentDataSerial2> implements IdentifiedDataSerializable {
+    public static class PersonIdentDataSerial2 extends Person implements IdentifiedDataSerializable {
 
         public PersonIdentDataSerial2() {
             super();
@@ -255,7 +343,7 @@ public class Chapter9 {
     }
 
 
-    public static class PersonDataSerial extends Person<PersonDataSerial> implements DataSerializable {
+    public static class PersonDataSerial extends Person implements DataSerializable {
 
         public PersonDataSerial() {
             super();
@@ -281,7 +369,7 @@ public class Chapter9 {
     }
 
 
-    public static class PersonExternal extends Person<PersonExternal> implements Externalizable {
+    public static class PersonExternal extends Person implements Externalizable {
 
         public PersonExternal() {
             super();
@@ -305,7 +393,7 @@ public class Chapter9 {
         }
     }
 
-    public static class PersonSerial extends Person<PersonSerial> implements Serializable {
+    public static class PersonSerial extends Person implements Serializable {
         private static final long serialVersionUID = 1L;
 
         private String secondName; // only this field will be deserialized
@@ -316,13 +404,24 @@ public class Chapter9 {
         }
 
         @Override
-        protected void addToString(ToStringBuilder builder) {
-            builder.append("secondName", secondName);
+        public String toString() {
+            return new ToStringBuilder(this, SHORT_PREFIX_STYLE)
+                    .append("name", this.name).append("surname", surname)
+                    .append("secondName", secondName)
+                    .append("hobby", hobby)
+                    .append("password", password)
+                    .toString();
         }
 
         @Override
-        protected boolean addToEquals(PersonSerial that) {
-            return Objects.equals(secondName, that.secondName);
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || !(o instanceof PersonSerial)) return false;
+            PersonSerial that = (PersonSerial) o;
+            return Objects.equals(name, that.name) &&
+                    Objects.equals(secondName, that.secondName) &&
+                    Objects.equals(surname, that.surname) &&
+                    Objects.equals(hobby, that.hobby);
         }
 
         @Override
@@ -332,7 +431,7 @@ public class Chapter9 {
     }
 
 
-    public abstract static class Person<T extends Person<T>> {
+    public abstract static class Person {
         protected /* not final */ String name;
         protected /* not final */ transient String surname;
         protected /* not final */ transient String hobby = "rugby";
@@ -352,9 +451,8 @@ public class Chapter9 {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || !(o instanceof Person)) return false;
-            T that = (T) o;
+            Person that = (Person) o;
             return Objects.equals(name, that.name) &&
-                    addToEquals(that) &&
                     Objects.equals(surname, that.surname) &&
                     Objects.equals(hobby, that.hobby);
         }
@@ -366,22 +464,11 @@ public class Chapter9 {
 
         @Override
         public String toString() {
-            ToStringBuilder builder = new ToStringBuilder(this, SHORT_PREFIX_STYLE);
-            builder.append("name", this.name).append("surname", surname);
-            addToString(builder);
-            return builder
+            return new ToStringBuilder(this, SHORT_PREFIX_STYLE)
+                    .append("name", this.name).append("surname", surname)
                     .append("hobby", hobby)
                     .append("password", password)
                     .toString();
-        }
-
-        protected boolean addToEquals(T that) {
-            /* for additional fields */
-            return true;
-        }
-
-        protected void addToString(ToStringBuilder builder) {
-            /* for additional fields */
         }
 
         public String getName() {
