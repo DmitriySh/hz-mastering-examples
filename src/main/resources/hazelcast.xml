@@ -131,12 +131,20 @@
 
     <serialization>
         <data-serializable-factories>
-            <data-serializable-factory factory-id="100">ru.shishmakov.hz.DSerializableFactory
+            <data-serializable-factory factory-id="100">ru.shishmakov.hz.DataSerializableImpl
             </data-serializable-factory>
         </data-serializable-factories>
+
         <portable-factories>
-            <portable-factory factory-id="200">ru.shishmakov.hz.PSerializableFactory</portable-factory>
+            <portable-factory factory-id="200">ru.shishmakov.hz.PortableSerializableImpl</portable-factory>
         </portable-factories>
+
+        <serializers>
+            <serializer type-class="ru.shishmakov.ch.Chapter9$PersonStreamSerial"
+                        class-name="ru.shishmakov.hz.PersonStreamSerialImpl"/>
+            <serializer type-class="ru.shishmakov.ch.Chapter9$PersonStreamSerial2"
+                        class-name="ru.shishmakov.hz.PersonStreamSerial2Impl"/>
+        </serializers>
     </serialization>
 
 </hazelcast>

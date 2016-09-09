@@ -7,7 +7,7 @@ import ru.shishmakov.ch.Chapter9;
 /**
  * Created by dima on 04.09.16.
  */
-public class PSerializableFactory implements PortableFactory {
+public class PortableSerializableImpl implements PortableFactory {
 
     public static final int FACTORY_ID_200 = 200;
     public static final int CLASS_ID_201 = 201;

@@ -16,8 +16,8 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
-import static ru.shishmakov.hz.DSerializableFactory.*;
-import static ru.shishmakov.hz.PSerializableFactory.*;
+import static ru.shishmakov.hz.DataSerializableImpl.*;
+import static ru.shishmakov.hz.PortableSerializableImpl.*;
 
 /**
  * Created by dima on 02.09.16.
@@ -31,7 +31,21 @@ public class Chapter9 {
 //        useDataSerializable(hz1, hz2);
 //        useIdentifiedDataSerializable(hz1, hz2);
 //        usePortable(hz1, hz2);
-        writePortableField(hz1, hz2);
+//        writePortableField(hz1, hz2);
+//        writeStreamSerializer(hz1, hz2);
+        writeStreamSerializerField(hz1, hz2);
+    }
+
+    private static void writeStreamSerializerField(HazelcastInstance hz1, HazelcastInstance hz2) {
+        logger.debug("-- HZ StreamSerializer field --");
+
+        processKeyMap(hz1, hz2, new PersonStreamSerial2(new PersonStreamSerial("Dmitriy", "Shishmakov", "History")));
+    }
+
+    private static void writeStreamSerializer(HazelcastInstance hz1, HazelcastInstance hz2) {
+        logger.debug("-- HZ StreamSerializer --");
+
+        processKeyMap(hz1, hz2, new PersonStreamSerial("Dmitriy", "Shishmakov", "History"));
     }
 
     private static void writePortableField(HazelcastInstance hz1, HazelcastInstance hz2) {
@@ -95,12 +109,61 @@ public class Chapter9 {
         mapObj.destroy();
     }
 
+    public static class PersonStreamSerial2 extends Person {
+
+        private PersonStreamSerial streamSerial;
+
+        public PersonStreamSerial2() {
+            /* need to be */
+        }
+
+        public PersonStreamSerial2(PersonStreamSerial streamSerial) {
+            super(streamSerial.getName(), streamSerial.getSurname(), streamSerial.getHobby());
+            this.streamSerial = streamSerial;
+        }
+
+        public PersonStreamSerial getStreamSerial() {
+            return streamSerial;
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this, SHORT_PREFIX_STYLE)
+                    .append("name", this.name).append("surname", surname)
+                    .append("streamSerial", streamSerial)
+                    .append("hobby", hobby)
+                    .append("password", password)
+                    .toString();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || !(o instanceof PersonStreamSerial2)) return false;
+            PersonStreamSerial2 that = (PersonStreamSerial2) o;
+            return Objects.equals(name, that.name) &&
+                    Objects.equals(streamSerial, that.streamSerial) &&
+                    Objects.equals(surname, that.surname) &&
+                    Objects.equals(hobby, that.hobby);
+        }
+    }
+
+
+    public static class PersonStreamSerial extends Person {
+        public PersonStreamSerial() {
+            /* need to be */
+        }
+
+        public PersonStreamSerial(String name, String surname, String hobby) {
+            super(name, surname, hobby);
+        }
+    }
+
     public static class PersonPortable3 extends Person implements Portable {
 
         private PersonPortable2 portable;
 
         public PersonPortable3() {
-            super();
             /* need to be */
         }
 
@@ -159,7 +222,6 @@ public class Chapter9 {
         private String secondName;
 
         public PersonPortable2() {
-            super();
             /* need to be */
         }
 
@@ -219,7 +281,6 @@ public class Chapter9 {
         private String secondName;
 
         public PersonPortable1() {
-            super();
             /* need to be */
         }
 
@@ -277,7 +338,6 @@ public class Chapter9 {
     public static class PersonIdentDataSerial1 extends Person implements IdentifiedDataSerializable {
 
         public PersonIdentDataSerial1() {
-            super();
             /* need to be */
         }
 
@@ -346,7 +406,6 @@ public class Chapter9 {
     public static class PersonDataSerial extends Person implements DataSerializable {
 
         public PersonDataSerial() {
-            super();
             /* need to be */
         }
 
@@ -372,7 +431,6 @@ public class Chapter9 {
     public static class PersonExternal extends Person implements Externalizable {
 
         public PersonExternal() {
-            super();
             /* need to be */
         }
 
@@ -434,7 +492,7 @@ public class Chapter9 {
     public abstract static class Person {
         protected /* not final */ String name;
         protected /* not final */ transient String surname;
-        protected /* not final */ transient String hobby = "rugby";
+        protected /* not final */ transient String hobby = "Rugby";
         protected static /* not final */ String password = "password123";
 
         Person() {
@@ -485,6 +543,22 @@ public class Chapter9 {
 
         public static String getPassword() {
             return password;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setSurname(String surname) {
+            this.surname = surname;
+        }
+
+        public void setHobby(String hobby) {
+            this.hobby = hobby;
+        }
+
+        public static void setPassword(String password) {
+            Person.password = password;
         }
     }
 }

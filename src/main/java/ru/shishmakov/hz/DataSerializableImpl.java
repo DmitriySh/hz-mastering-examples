@@ -7,7 +7,7 @@ import ru.shishmakov.ch.Chapter9;
 /**
  * Created by dima on 04.09.16.
  */
-public class DSerializableFactory implements DataSerializableFactory {
+public class DataSerializableImpl implements DataSerializableFactory {
 
     public static final int FACTORY_ID_100 = 100;
     public static final int CLASS_ID_101 = 101;
