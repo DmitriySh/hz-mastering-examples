@@ -34,9 +34,17 @@ public class Chapter9 {
 //        useIdentifiedDataSerializable(hz1, hz2);
 //        usePortable(hz1, hz2);
 //        writePortableField(hz1, hz2);
-//        writeStreamSerializer(hz1, hz2);
+//        useStreamSerializer(hz1, hz2);
 //        writeStreamSerializerField(hz1, hz2);
-        writeMapStreamSerializer(hz1, hz2);
+//        writeMapStreamSerializer(hz1, hz2);
+        useKryoStreamSerializer(hz1, hz2);
+//        useSmartKryoStreamSerializer(hz1, hz2);
+    }
+
+    private static void useKryoStreamSerializer(HazelcastInstance hz1, HazelcastInstance hz2) {
+        logger.debug("-- HZ Kryo StreamSerializer --");
+
+        processKeyMap(hz1, hz2, new PersonStreamSerial("Dmitriy", "Shishmakov", "History"));
     }
 
     private static void writeMapStreamSerializer(HazelcastInstance hz1, HazelcastInstance hz2) {
@@ -54,7 +62,7 @@ public class Chapter9 {
         processKeyMap(hz1, hz2, new PersonStreamSerial2(new PersonStreamSerial("Dmitriy", "Shishmakov", "History")));
     }
 
-    private static void writeStreamSerializer(HazelcastInstance hz1, HazelcastInstance hz2) {
+    private static void useStreamSerializer(HazelcastInstance hz1, HazelcastInstance hz2) {
         logger.debug("-- HZ StreamSerializer --");
 
         processKeyMap(hz1, hz2, new PersonStreamSerial("Dmitriy", "Shishmakov", "History"));
