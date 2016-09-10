@@ -5,14 +5,12 @@ import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.shishmakov.ch.Chapter9;
-import ru.shishmakov.ch.Chapter9.PersonStreamSerial;
 import ru.shishmakov.ch.Chapter9.PersonStreamSerial2;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
-import static ru.shishmakov.hz.StreamSerializerConst.PERSON_SERIALIZER_2;
+import static ru.shishmakov.hz.StreamSerializers.PERSON_SERIALIZER_2;
 
 /**
  * Created by dima on 10.09.16.
@@ -41,6 +39,6 @@ public class PersonStreamSerial2Impl implements StreamSerializer<PersonStreamSer
 
     @Override
     public void destroy() {
-
+        logger.debug("x--  destroy serializer: {}", this);
     }
 }

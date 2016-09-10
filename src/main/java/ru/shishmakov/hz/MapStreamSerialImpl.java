@@ -11,7 +11,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
 
-import static ru.shishmakov.hz.StreamSerializerConst.MAP_SERIALIZER;
+import static ru.shishmakov.hz.StreamSerializers.MAP_SERIALIZER;
 
 
 /**
@@ -49,6 +49,6 @@ public class MapStreamSerialImpl implements StreamSerializer<Map<?, ?>> {
 
     @Override
     public void destroy() {
-
+        logger.debug("x--  destroy serializer: {}", this);
     }
 }

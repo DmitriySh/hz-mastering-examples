@@ -10,7 +10,7 @@ import ru.shishmakov.ch.Chapter9.PersonStreamSerial3;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
-import static ru.shishmakov.hz.StreamSerializerConst.PERSON_SERIALIZER_3;
+import static ru.shishmakov.hz.StreamSerializers.PERSON_SERIALIZER_3;
 
 /**
  * Created by dima on 10.09.16.
@@ -42,6 +42,6 @@ public class PersonStreamSerial3Impl implements StreamSerializer<PersonStreamSer
 
     @Override
     public void destroy() {
-
+        logger.debug("x--  destroy serializer: {}", this);
     }
 }

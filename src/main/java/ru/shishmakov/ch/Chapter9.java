@@ -44,7 +44,7 @@ public class Chapter9 {
     private static void useKryoStreamSerializer(HazelcastInstance hz1, HazelcastInstance hz2) {
         logger.debug("-- HZ Kryo StreamSerializer --");
 
-        processKeyMap(hz1, hz2, new PersonStreamSerial("Dmitriy", "Shishmakov", "History"));
+        processKeyMap(hz1, hz2, new KryoPersonStreamSerial("Dmitriy", "Shishmakov", "History"));
     }
 
     private static void writeMapStreamSerializer(HazelcastInstance hz1, HazelcastInstance hz2) {
@@ -129,6 +129,16 @@ public class Chapter9 {
 
         mapBin.destroy();
         mapObj.destroy();
+    }
+
+    public static class KryoPersonStreamSerial extends Person {
+        public KryoPersonStreamSerial() {
+            /* need to be */
+        }
+
+        public KryoPersonStreamSerial(String name, String surname, String hobby) {
+            super(name, surname, hobby);
+        }
     }
 
     public static class MapStreamSerial<K, V> extends HashMap<K, V> {
