@@ -144,6 +144,10 @@
                         class-name="ru.shishmakov.hz.PersonStreamSerialImpl"/>
             <serializer type-class="ru.shishmakov.ch.Chapter9$PersonStreamSerial2"
                         class-name="ru.shishmakov.hz.PersonStreamSerial2Impl"/>
+            <serializer type-class="ru.shishmakov.ch.Chapter9$PersonStreamSerial3"
+                        class-name="ru.shishmakov.hz.PersonStreamSerial3Impl"/>
+            <serializer type-class="ru.shishmakov.ch.Chapter9$MapStreamSerial"
+                        class-name="ru.shishmakov.hz.MapStreamSerialImpl"/>
         </serializers>
     </serialization>
 

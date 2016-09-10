@@ -6,4 +6,7 @@ package ru.shishmakov.hz;
 public final class StreamSerializerConst {
     public static final int PERSON_SERIALIZER = 301;
     public static final int PERSON_SERIALIZER_2 = 302;
+    public static final int PERSON_SERIALIZER_3 = 303;
+
+    public static final int MAP_SERIALIZER = 350;
 }

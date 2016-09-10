@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 
@@ -26,14 +28,24 @@ public class Chapter9 {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public static void doExamples(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
-//        useSerializition(hz1, hz2);
+//        useSerialization(hz1, hz2);
 //        useExternalization(hz1, hz2);
 //        useDataSerializable(hz1, hz2);
 //        useIdentifiedDataSerializable(hz1, hz2);
 //        usePortable(hz1, hz2);
 //        writePortableField(hz1, hz2);
 //        writeStreamSerializer(hz1, hz2);
-        writeStreamSerializerField(hz1, hz2);
+//        writeStreamSerializerField(hz1, hz2);
+        writeMapStreamSerializer(hz1, hz2);
+    }
+
+    private static void writeMapStreamSerializer(HazelcastInstance hz1, HazelcastInstance hz2) {
+        logger.debug("-- HZ Map StreamSerializer --");
+
+        Map<String, Integer> map = new MapStreamSerial<>();
+        map.put("pen", 1);
+        map.put("pencil", 1);
+        processKeyMap(hz1, hz2, new PersonStreamSerial3(map, "Dmitriy", "Shishmakov", "History"));
     }
 
     private static void writeStreamSerializerField(HazelcastInstance hz1, HazelcastInstance hz2) {
@@ -80,25 +92,27 @@ public class Chapter9 {
         processKeyMap(hz1, hz2, new PersonExternal("Dmitriy", "Shishmakov", "History"));
     }
 
-    private static void useSerializition(HazelcastInstance hz1, HazelcastInstance hz2) {
+    private static void useSerialization(HazelcastInstance hz1, HazelcastInstance hz2) {
         logger.debug("-- HZ Serializable --");
 
         processKeyMap(hz1, hz2, new PersonSerial("Dmitriy", "Alexandrovich", "Shishmakov", "History"));
     }
 
-    private static void processKeyMap(HazelcastInstance hz1, HazelcastInstance hz2, Person person) {
-        IMap<Person, Integer> mapBin = hz1.getMap("mapBin");
-        IMap<Person, Integer> mapObj = hz1.getMap("mapObj");
+    private static <T> void processKeyMap(HazelcastInstance hz1, HazelcastInstance hz2, T key) {
+        IMap<T, Integer> mapBin = hz1.getMap("mapBin");
+        IMap<T, Integer> mapObj = hz1.getMap("mapObj");
 
-        logger.debug("original key: {}", person);
+        logger.debug("original key: {}", key);
 
-        mapBin.set(person, 2);
-        mapObj.set(person, 2);
-        logger.debug("mapBin contains key: {}", mapBin.containsKey(person));
-        logger.debug("mapObj contains key: {}", mapObj.containsKey(person));
+        mapBin.set(key, 2);
+        mapObj.set(key, 2);
+        logger.debug("mapBin contains key: {}", mapBin.containsKey(key));
+        logger.debug("mapObj contains key: {}", mapObj.containsKey(key));
 
-        Person[] mapBinKeys = mapBin.keySet().toArray(new Person[0]);
-        Person[] mapObjKeys = mapObj.keySet().toArray(new Person[0]);
+        @SuppressWarnings("unchecked")
+        T[] mapBinKeys = (T[]) mapBin.keySet().toArray();
+        @SuppressWarnings("unchecked")
+        T[] mapObjKeys = (T[]) mapObj.keySet().toArray();
         logger.debug("mapBin keys: {}", Arrays.toString(mapBinKeys));
         logger.debug("mapObj keys: {}", Arrays.toString(mapObjKeys));
 
@@ -109,8 +123,58 @@ public class Chapter9 {
         mapObj.destroy();
     }
 
-    public static class PersonStreamSerial2 extends Person {
+    public static class MapStreamSerial<K, V> extends HashMap<K, V> {
+        /* serialization pattern only for this HashMap */
+    }
 
+    public static class PersonStreamSerial3 extends Person {
+        private Map<?, ?> map;
+
+        public PersonStreamSerial3() {
+            /* need to be */
+        }
+
+        public PersonStreamSerial3(Map<?, ?> map, String name, String surname, String hobby) {
+            super(name, surname, hobby);
+            this.map = map;
+        }
+
+        public Map<?, ?> getMap() {
+            return map;
+        }
+
+        public void setMap(Map<?, ?> map) {
+            this.map = map;
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this, SHORT_PREFIX_STYLE)
+                    .append("map", this.map)
+                    .append("name", this.name)
+                    .append("surname", this.surname)
+                    .append("hobby", this.hobby)
+                    .append("password", password)
+                    .toString();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || !(o instanceof PersonStreamSerial3)) return false;
+            if (!super.equals(o)) return false;
+            PersonStreamSerial3 that = (PersonStreamSerial3) o;
+            return Objects.equals(map, that.map) &&
+                    super.equals(o);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(super.hashCode(), map);
+        }
+    }
+
+    public static class PersonStreamSerial2 extends Person {
         private PersonStreamSerial streamSerial;
 
         public PersonStreamSerial2() {
@@ -129,7 +193,8 @@ public class Chapter9 {
         @Override
         public String toString() {
             return new ToStringBuilder(this, SHORT_PREFIX_STYLE)
-                    .append("name", this.name).append("surname", surname)
+                    .append("name", this.name)
+                    .append("surname", surname)
                     .append("streamSerial", streamSerial)
                     .append("hobby", hobby)
                     .append("password", password)
@@ -141,10 +206,13 @@ public class Chapter9 {
             if (this == o) return true;
             if (o == null || !(o instanceof PersonStreamSerial2)) return false;
             PersonStreamSerial2 that = (PersonStreamSerial2) o;
-            return Objects.equals(name, that.name) &&
-                    Objects.equals(streamSerial, that.streamSerial) &&
-                    Objects.equals(surname, that.surname) &&
-                    Objects.equals(hobby, that.hobby);
+            return Objects.equals(streamSerial, that.streamSerial) &&
+                    super.equals(o);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(super.hashCode(), streamSerial);
         }
     }
 
@@ -160,7 +228,6 @@ public class Chapter9 {
     }
 
     public static class PersonPortable3 extends Person implements Portable {
-
         private PersonPortable2 portable;
 
         public PersonPortable3() {
@@ -198,7 +265,8 @@ public class Chapter9 {
         @Override
         public String toString() {
             return new ToStringBuilder(this, SHORT_PREFIX_STYLE)
-                    .append("name", this.name).append("surname", surname)
+                    .append("name", this.name)
+                    .append("surname", surname)
                     .append("portable", portable)
                     .append("hobby", hobby)
                     .append("password", password)
@@ -210,15 +278,17 @@ public class Chapter9 {
             if (this == o) return true;
             if (o == null || !(o instanceof PersonPortable3)) return false;
             PersonPortable3 that = (PersonPortable3) o;
-            return Objects.equals(name, that.name) &&
-                    Objects.equals(portable, that.portable) &&
-                    Objects.equals(surname, that.surname) &&
-                    Objects.equals(hobby, that.hobby);
+            return Objects.equals(portable, that.portable) &&
+                    super.equals(o);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(super.hashCode(), portable);
         }
     }
 
     public static class PersonPortable2 extends Person implements Portable {
-
         private String secondName;
 
         public PersonPortable2() {
@@ -257,7 +327,8 @@ public class Chapter9 {
         @Override
         public String toString() {
             return new ToStringBuilder(this, SHORT_PREFIX_STYLE)
-                    .append("name", this.name).append("surname", surname)
+                    .append("name", this.name)
+                    .append("surname", surname)
                     .append("secondName", secondName)
                     .append("hobby", hobby)
                     .append("password", password)
@@ -269,15 +340,17 @@ public class Chapter9 {
             if (this == o) return true;
             if (o == null || !(o instanceof PersonPortable2)) return false;
             PersonPortable2 that = (PersonPortable2) o;
-            return Objects.equals(name, that.name) &&
-                    Objects.equals(secondName, that.secondName) &&
-                    Objects.equals(surname, that.surname) &&
-                    Objects.equals(hobby, that.hobby);
+            return Objects.equals(secondName, that.secondName) &&
+                    super.equals(o);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(super.hashCode(), secondName);
         }
     }
 
     public static class PersonPortable1 extends Person implements Portable {
-
         private String secondName;
 
         public PersonPortable1() {
@@ -316,7 +389,8 @@ public class Chapter9 {
         @Override
         public String toString() {
             return new ToStringBuilder(this, SHORT_PREFIX_STYLE)
-                    .append("name", this.name).append("surname", surname)
+                    .append("name", this.name)
+                    .append("surname", surname)
                     .append("secondName", secondName)
                     .append("hobby", hobby)
                     .append("password", password)
@@ -328,10 +402,13 @@ public class Chapter9 {
             if (this == o) return true;
             if (o == null || !(o instanceof PersonPortable1)) return false;
             PersonPortable1 that = (PersonPortable1) o;
-            return Objects.equals(name, that.name) &&
-                    Objects.equals(secondName, that.secondName) &&
-                    Objects.equals(surname, that.surname) &&
-                    Objects.equals(hobby, that.hobby);
+            return Objects.equals(secondName, that.secondName) &&
+                    super.equals(o);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(super.hashCode(), secondName);
         }
     }
 
@@ -371,7 +448,6 @@ public class Chapter9 {
     public static class PersonIdentDataSerial2 extends Person implements IdentifiedDataSerializable {
 
         public PersonIdentDataSerial2() {
-            super();
             /* need to be */
         }
 
@@ -464,7 +540,8 @@ public class Chapter9 {
         @Override
         public String toString() {
             return new ToStringBuilder(this, SHORT_PREFIX_STYLE)
-                    .append("name", this.name).append("surname", surname)
+                    .append("name", this.name)
+                    .append("surname", surname)
                     .append("secondName", secondName)
                     .append("hobby", hobby)
                     .append("password", password)
@@ -476,10 +553,8 @@ public class Chapter9 {
             if (this == o) return true;
             if (o == null || !(o instanceof PersonSerial)) return false;
             PersonSerial that = (PersonSerial) o;
-            return Objects.equals(name, that.name) &&
-                    Objects.equals(secondName, that.secondName) &&
-                    Objects.equals(surname, that.surname) &&
-                    Objects.equals(hobby, that.hobby);
+            return Objects.equals(secondName, that.secondName) &&
+                    super.equals(o);
         }
 
         @Override
@@ -523,7 +598,8 @@ public class Chapter9 {
         @Override
         public String toString() {
             return new ToStringBuilder(this, SHORT_PREFIX_STYLE)
-                    .append("name", this.name).append("surname", surname)
+                    .append("name", this.name)
+                    .append("surname", surname)
                     .append("hobby", hobby)
                     .append("password", password)
                     .toString();
