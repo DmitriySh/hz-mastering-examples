@@ -1,4 +1,4 @@
-package ru.shishmakov.hz;
+package ru.shishmakov.hz.serial;
 
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -10,8 +10,6 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
-
-import static ru.shishmakov.hz.StreamSerializers.MAP_SERIALIZER;
 
 
 /**
@@ -44,7 +42,7 @@ public class MapStreamSerialImpl implements StreamSerializer<Map<?, ?>> {
 
     @Override
     public int getTypeId() {
-        return MAP_SERIALIZER;
+        return StreamSerializerIds.MAP_SERIALIZER;
     }
 
     @Override

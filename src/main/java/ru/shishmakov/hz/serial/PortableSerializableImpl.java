@@ -1,4 +1,4 @@
-package ru.shishmakov.hz;
+package ru.shishmakov.hz.serial;
 
 import com.hazelcast.nio.serialization.Portable;
 import com.hazelcast.nio.serialization.PortableFactory;

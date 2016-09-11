@@ -11,13 +11,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static ru.shishmakov.hz.HzClusterConfig.buildHZInstance;
+import static ru.shishmakov.hz.cfg.HzClusterConfig.buildHZInstance;
 
 public class Main {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public static final String GROUP_NAME = "dev-hz-example";
-    public static final String GROUP_PASSWORD = "dev-hz-example";
+    public static final String GROUP_NAME = "dev-hz";
+    public static final String GROUP_PASSWORD = "dev-hz";
 
     private static ExecutorService service = Executors.newCachedThreadPool();
 
@@ -35,7 +35,7 @@ public class Main {
 //            Chapter6.doExamples(hz1, hz2, service);
 //            Chapter7.doExamples(hz1, hz2, service);
 //            Chapter8.doExamples(hz1, hz2, service);
-            Chapter9.doExamples(hz1, hz2, service);
+            Chapter9.doExamples(hz1, hz2);
         } finally {
             service.shutdownNow();
             service.awaitTermination(15, TimeUnit.SECONDS);

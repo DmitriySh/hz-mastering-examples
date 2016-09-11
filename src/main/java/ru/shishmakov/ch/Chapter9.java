@@ -1,5 +1,11 @@
 package ru.shishmakov.ch;
 
+import com.google.common.reflect.ClassPath;
+import com.hazelcast.config.Config;
+import com.hazelcast.config.GroupConfig;
+import com.hazelcast.config.SerializationConfig;
+import com.hazelcast.config.SerializerConfig;
+import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.nio.ObjectDataInput;
@@ -8,18 +14,17 @@ import com.hazelcast.nio.serialization.*;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.shishmakov.hz.serial.KryoSmartStreamSerialImpl;
 
 import java.io.*;
 import java.lang.invoke.MethodHandles;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ExecutorService;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
-import static ru.shishmakov.hz.DataSerializableImpl.*;
-import static ru.shishmakov.hz.PortableSerializableImpl.*;
+import static ru.shishmakov.hz.cfg.HzClusterConfig.buildClusterConfig;
+import static ru.shishmakov.hz.serial.DataSerializableImpl.*;
+import static ru.shishmakov.hz.serial.PortableSerializableImpl.*;
 
 /**
  * Created by dima on 02.09.16.
@@ -27,7 +32,7 @@ import static ru.shishmakov.hz.PortableSerializableImpl.*;
 public class Chapter9 {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public static void doExamples(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+    public static void doExamples(HazelcastInstance hz1, HazelcastInstance hz2) {
 //        useSerialization(hz1, hz2);
 //        useExternalization(hz1, hz2);
 //        useDataSerializable(hz1, hz2);
@@ -37,14 +42,23 @@ public class Chapter9 {
 //        useStreamSerializer(hz1, hz2);
 //        writeStreamSerializerField(hz1, hz2);
 //        writeMapStreamSerializer(hz1, hz2);
-        useKryoStreamSerializer(hz1, hz2);
-//        useSmartKryoStreamSerializer(hz1, hz2);
+//        useSimpleKryoStreamSerializer(hz1, hz2);
+        useSmartKryoStreamSerializer();
     }
 
-    private static void useKryoStreamSerializer(HazelcastInstance hz1, HazelcastInstance hz2) {
-        logger.debug("-- HZ Kryo StreamSerializer --");
 
-        processKeyMap(hz1, hz2, new KryoPersonStreamSerial("Dmitriy", "Shishmakov", "History"));
+    private static void useSmartKryoStreamSerializer() {
+        logger.debug("-- HZ smart Kryo StreamSerializer --");
+
+        HazelcastInstance hz1 = initHzCustomNode();
+        processKeyMap(hz1, new KryoPersonStreamSerial("Dmitriy", "Shishmakov", "History"));
+        hz1.getCluster().shutdown();
+    }
+
+    private static void useSimpleKryoStreamSerializer(HazelcastInstance hz1, HazelcastInstance hz2) {
+        logger.debug("-- HZ simple Kryo StreamSerializer --");
+
+        processKeyMap(hz1, new KryoPersonStreamSerial("Dmitriy", "Shishmakov", "History"));
     }
 
     private static void writeMapStreamSerializer(HazelcastInstance hz1, HazelcastInstance hz2) {
@@ -53,62 +67,97 @@ public class Chapter9 {
         Map<String, Integer> map = new MapStreamSerial<>();
         map.put("pen", 1);
         map.put("pencil", 1);
-        processKeyMap(hz1, hz2, new PersonStreamSerial3(map, "Dmitriy", "Shishmakov", "History"));
+        processKeyMap(hz1, new PersonStreamSerial3(map, "Dmitriy", "Shishmakov", "History"));
     }
 
     private static void writeStreamSerializerField(HazelcastInstance hz1, HazelcastInstance hz2) {
         logger.debug("-- HZ StreamSerializer field --");
 
-        processKeyMap(hz1, hz2, new PersonStreamSerial2(new PersonStreamSerial("Dmitriy", "Shishmakov", "History")));
+        processKeyMap(hz1, new PersonStreamSerial2(new PersonStreamSerial("Dmitriy", "Shishmakov", "History")));
     }
 
     private static void useStreamSerializer(HazelcastInstance hz1, HazelcastInstance hz2) {
         logger.debug("-- HZ StreamSerializer --");
 
-        processKeyMap(hz1, hz2, new PersonStreamSerial("Dmitriy", "Shishmakov", "History"));
+        processKeyMap(hz1, new PersonStreamSerial("Dmitriy", "Shishmakov", "History"));
     }
 
     private static void writePortableField(HazelcastInstance hz1, HazelcastInstance hz2) {
         logger.debug("-- HZ write Portable field --");
 
-        processKeyMap(hz1, hz2, new PersonPortable3(new PersonPortable2("Igor", "Alexandrovich", "Shishmakov", "History")));
+        processKeyMap(hz1, new PersonPortable3(new PersonPortable2("Igor", "Alexandrovich", "Shishmakov", "History")));
     }
 
     private static void usePortable(HazelcastInstance hz1, HazelcastInstance hz2) {
         logger.debug("-- HZ Portable --");
 
-        processKeyMap(hz1, hz2, new PersonPortable1("Dmitriy", "Alexandrovich", "Shishmakov", "History"));
-        processKeyMap(hz1, hz2, new PersonPortable2("Igor", "Alexandrovich", "Shishmakov", "History"));
+        processKeyMap(hz1, new PersonPortable1("Dmitriy", "Alexandrovich", "Shishmakov", "History"));
+        processKeyMap(hz1, new PersonPortable2("Igor", "Alexandrovich", "Shishmakov", "History"));
     }
 
     private static void useIdentifiedDataSerializable(HazelcastInstance hz1, HazelcastInstance hz2) {
         logger.debug("-- HZ IdentifiedDataSerializable --");
 
-        processKeyMap(hz1, hz2, new PersonIdentDataSerial1("Dmitriy", "Shishmakov", "History"));
-        processKeyMap(hz1, hz2, new PersonIdentDataSerial2("Igor", "Shishmakov", "History"));
+        processKeyMap(hz1, new PersonIdentDataSerial1("Dmitriy", "Shishmakov", "History"));
+        processKeyMap(hz1, new PersonIdentDataSerial2("Igor", "Shishmakov", "History"));
     }
 
     private static void useDataSerializable(HazelcastInstance hz1, HazelcastInstance hz2) {
         logger.debug("-- HZ DataSerializable --");
 
-        processKeyMap(hz1, hz2, new PersonDataSerial("Dmitriy", "Shishmakov", "History"));
+        processKeyMap(hz1, new PersonDataSerial("Dmitriy", "Shishmakov", "History"));
     }
 
     private static void useExternalization(HazelcastInstance hz1, HazelcastInstance hz2) {
         logger.debug("-- HZ Externalizable --");
 
-        processKeyMap(hz1, hz2, new PersonExternal("Dmitriy", "Shishmakov", "History"));
+        processKeyMap(hz1, new PersonExternal("Dmitriy", "Shishmakov", "History"));
     }
 
     private static void useSerialization(HazelcastInstance hz1, HazelcastInstance hz2) {
         logger.debug("-- HZ Serializable --");
 
-        processKeyMap(hz1, hz2, new PersonSerial("Dmitriy", "Alexandrovich", "Shishmakov", "History"));
+        processKeyMap(hz1, new PersonSerial("Dmitriy", "Alexandrovich", "Shishmakov", "History"));
     }
 
-    private static <T> void processKeyMap(HazelcastInstance hz1, HazelcastInstance hz2, T key) {
-        IMap<T, Integer> mapBin = hz1.getMap("mapBin");
-        IMap<T, Integer> mapObj = hz1.getMap("mapObj");
+    private static HazelcastInstance initHzCustomNode() {
+        Config config = buildClusterConfig();
+        GroupConfig group = config.getGroupConfig();
+        group.setName("dev-hz-kryo");
+        group.setPassword("dev-hz-kryo");
+        fillSerializationConfig(config.getSerializationConfig());
+        return Hazelcast.newHazelcastInstance(config);
+    }
+
+    private static void fillSerializationConfig(SerializationConfig serialCfg) {
+        try {
+            String packageName = Chapter9.class.getPackage().getName();
+            ClassPath cp = ClassPath.from(Thread.currentThread().getContextClassLoader());
+            Set<Class<?>> classes = cp.getAllClasses().stream()
+                    .filter(cl -> cl.getName().contains("$"))
+                    .filter(cl -> packageName.equalsIgnoreCase(cl.getPackageName()))
+                    .map(cl -> {
+                        try {
+                            return Class.forName(cl.getName());
+                        } catch (ClassNotFoundException e) {
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+
+            KryoSmartStreamSerialImpl<?> kryoSerializer = new KryoSmartStreamSerialImpl<>(classes);
+            for (Class<?> cl : classes) {
+                serialCfg.addSerializerConfig(new SerializerConfig().setTypeClass(cl).setImplementation(kryoSerializer));
+            }
+        } catch (Exception e) {
+            logger.error("Error", e);
+        }
+    }
+
+    private static <T> void processKeyMap(HazelcastInstance hz, T key) {
+        IMap<T, Integer> mapBin = hz.getMap("mapBin");
+        IMap<T, Integer> mapObj = hz.getMap("mapObj");
 
         logger.debug("original key: {}", key);
 

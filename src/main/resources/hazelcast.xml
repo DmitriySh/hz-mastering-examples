@@ -131,25 +131,25 @@
 
     <serialization>
         <data-serializable-factories>
-            <data-serializable-factory factory-id="100">ru.shishmakov.hz.DataSerializableImpl
+            <data-serializable-factory factory-id="100">ru.shishmakov.hz.serial.DataSerializableImpl
             </data-serializable-factory>
         </data-serializable-factories>
 
         <portable-factories>
-            <portable-factory factory-id="200">ru.shishmakov.hz.PortableSerializableImpl</portable-factory>
+            <portable-factory factory-id="200">ru.shishmakov.hz.serial.PortableSerializableImpl</portable-factory>
         </portable-factories>
 
         <serializers>
             <serializer type-class="ru.shishmakov.ch.Chapter9$PersonStreamSerial"
-                        class-name="ru.shishmakov.hz.PersonStreamSerialImpl"/>
+                        class-name="ru.shishmakov.hz.serial.PersonStreamSerialImpl"/>
             <serializer type-class="ru.shishmakov.ch.Chapter9$PersonStreamSerial2"
-                        class-name="ru.shishmakov.hz.PersonStreamSerial2Impl"/>
+                        class-name="ru.shishmakov.hz.serial.PersonStreamSerial2Impl"/>
             <serializer type-class="ru.shishmakov.ch.Chapter9$PersonStreamSerial3"
-                        class-name="ru.shishmakov.hz.PersonStreamSerial3Impl"/>
+                        class-name="ru.shishmakov.hz.serial.PersonStreamSerial3Impl"/>
             <serializer type-class="ru.shishmakov.ch.Chapter9$MapStreamSerial"
-                        class-name="ru.shishmakov.hz.MapStreamSerialImpl"/>
+                        class-name="ru.shishmakov.hz.serial.MapStreamSerialImpl"/>
             <serializer type-class="ru.shishmakov.ch.Chapter9$KryoPersonStreamSerial"
-                        class-name="ru.shishmakov.hz.KryoPersonStreamSerialImpl"/>
+                        class-name="ru.shishmakov.hz.serial.KryoPersonStreamSerialImpl"/>
         </serializers>
     </serialization>
 

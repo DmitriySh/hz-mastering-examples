@@ -1,4 +1,4 @@
-package ru.shishmakov.hz;
+package ru.shishmakov.hz.cfg;
 
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;

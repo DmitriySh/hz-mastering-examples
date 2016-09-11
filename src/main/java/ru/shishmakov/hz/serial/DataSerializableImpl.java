@@ -1,4 +1,4 @@
-package ru.shishmakov.hz;
+package ru.shishmakov.hz.serial;
 
 import com.hazelcast.nio.serialization.DataSerializableFactory;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;

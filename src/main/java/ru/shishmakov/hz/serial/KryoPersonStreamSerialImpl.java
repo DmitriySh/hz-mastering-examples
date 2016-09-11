@@ -1,4 +1,4 @@
-package ru.shishmakov.hz;
+package ru.shishmakov.hz.serial;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -15,13 +15,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.invoke.MethodHandles;
 
-import static ru.shishmakov.hz.StreamSerializers.PERSON_KRYO_SERIALIZER;
-
 /**
  * Created by dima on 10.09.16.
  */
 public class KryoPersonStreamSerialImpl implements StreamSerializer<KryoPersonStreamSerial> {
-
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final ThreadLocal<Kryo> kryoLocal = new ThreadLocal<Kryo>() {
@@ -53,7 +50,7 @@ public class KryoPersonStreamSerialImpl implements StreamSerializer<KryoPersonSt
 
     @Override
     public int getTypeId() {
-        return PERSON_KRYO_SERIALIZER;
+        return StreamSerializerIds.PERSON_KRYO_SERIALIZER;
     }
 
     @Override

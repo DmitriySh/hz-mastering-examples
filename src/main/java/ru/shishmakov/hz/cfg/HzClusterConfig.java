@@ -1,4 +1,4 @@
-package ru.shishmakov.hz;
+package ru.shishmakov.hz.cfg;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.FileSystemXmlConfig;
@@ -30,6 +30,11 @@ public class HzClusterConfig {
     }
 
     private static HazelcastInstance loadFromProgrammatically() {
+        Config config = buildClusterConfig();
+        return Hazelcast.newHazelcastInstance(config);
+    }
+
+    public static Config buildClusterConfig() {
         Config config = new Config();
         config.setProperty("hazelcast.logging.type", "slf4j");
         GroupConfig group = config.getGroupConfig();
@@ -39,7 +44,7 @@ public class HzClusterConfig {
         network.setPortAutoIncrement(true);
         network.setPort(5701);
         network.getJoin().getMulticastConfig().setEnabled(true);
-        return Hazelcast.newHazelcastInstance(config);
+        return config;
     }
 
     private static HazelcastInstance loadFromClassPath() {
