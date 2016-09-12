@@ -18,6 +18,7 @@ public final class SerializerIds {
     public static final int SMART_KRYO_SERIALIZER = counter++;
 
     public static final int PERSON_BYTE_ARRAY_SERIALIZER = counter++;
+    public static final int PERSON_BYTE_ARRAY_SERIALIZER_2 = counter++;
 
     public static final int MAP_SERIALIZER = counter++;
 }

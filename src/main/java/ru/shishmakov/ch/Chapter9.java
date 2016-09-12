@@ -44,7 +44,14 @@ public class Chapter9 {
 //        writeMapStreamSerializer(hz1, hz2);
 //        useSimpleKryoStreamSerializer(hz1, hz2);
 //        useSmartKryoStreamSerializer();
-        useByteArraySerializer(hz1, hz2);
+//        useByteArraySerializer(hz1, hz2);
+        useDefaultGlobalSerializer(hz1, hz2);
+    }
+
+    private static void useDefaultGlobalSerializer(HazelcastInstance hz1, HazelcastInstance hz2) {
+        logger.debug("-- HZ Global ByteArraySerializer --");
+
+        processKeyMap(hz1, new PersonByteArraySerial2("Dmitriy", "Shishmakov", "History"));
     }
 
     private static void useByteArraySerializer(HazelcastInstance hz1, HazelcastInstance hz2) {
@@ -186,6 +193,16 @@ public class Chapter9 {
 
         mapBin.destroy();
         mapObj.destroy();
+    }
+
+    public static class PersonByteArraySerial2 extends Person {
+        public PersonByteArraySerial2() {
+            /* need to be */
+        }
+
+        public PersonByteArraySerial2(String name, String surname, String hobby) {
+            super(name, surname, hobby);
+        }
     }
 
     public static class PersonByteArraySerial extends Person {

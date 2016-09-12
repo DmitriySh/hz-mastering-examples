@@ -152,6 +152,10 @@
                         class-name="ru.shishmakov.hz.serial.KryoPersonStreamSerialImpl"/>
             <serializer type-class="ru.shishmakov.ch.Chapter9$PersonByteArraySerial"
                         class-name="ru.shishmakov.hz.serial.PersonByteArraySerialImpl"/>
+
+            <global-serializer override-java-serialization="false">
+                ru.shishmakov.hz.serial.PersonByteArraySerial2Impl
+            </global-serializer>
         </serializers>
     </serialization>
 
