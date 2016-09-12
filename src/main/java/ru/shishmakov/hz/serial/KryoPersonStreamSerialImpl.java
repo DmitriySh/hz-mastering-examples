@@ -50,7 +50,7 @@ public class KryoPersonStreamSerialImpl implements StreamSerializer<KryoPersonSt
 
     @Override
     public int getTypeId() {
-        return StreamSerializerIds.PERSON_KRYO_SERIALIZER;
+        return SerializerIds.PERSON_KRYO_SERIALIZER;
     }
 
     @Override

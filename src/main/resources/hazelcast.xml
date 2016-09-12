@@ -150,6 +150,8 @@
                         class-name="ru.shishmakov.hz.serial.MapStreamSerialImpl"/>
             <serializer type-class="ru.shishmakov.ch.Chapter9$KryoPersonStreamSerial"
                         class-name="ru.shishmakov.hz.serial.KryoPersonStreamSerialImpl"/>
+            <serializer type-class="ru.shishmakov.ch.Chapter9$PersonByteArraySerial"
+                        class-name="ru.shishmakov.hz.serial.PersonByteArraySerialImpl"/>
         </serializers>
     </serialization>
 

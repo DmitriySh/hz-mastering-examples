@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 import static ru.shishmakov.hz.cfg.HzClusterConfig.buildClusterConfig;
-import static ru.shishmakov.hz.serial.DataSerializableImpl.*;
 import static ru.shishmakov.hz.serial.PortableSerializableImpl.*;
+import static ru.shishmakov.hz.serial.SerializerIds.*;
 
 /**
  * Created by dima on 02.09.16.
@@ -43,16 +43,23 @@ public class Chapter9 {
 //        writeStreamSerializerField(hz1, hz2);
 //        writeMapStreamSerializer(hz1, hz2);
 //        useSimpleKryoStreamSerializer(hz1, hz2);
-        useSmartKryoStreamSerializer();
+//        useSmartKryoStreamSerializer();
+        useByteArraySerializer(hz1, hz2);
+    }
+
+    private static void useByteArraySerializer(HazelcastInstance hz1, HazelcastInstance hz2) {
+        logger.debug("-- HZ ByteArraySerializer --");
+
+        processKeyMap(hz1, new PersonByteArraySerial("Dmitriy", "Shishmakov", "History"));
     }
 
 
     private static void useSmartKryoStreamSerializer() {
         logger.debug("-- HZ smart Kryo StreamSerializer --");
 
+        // TODO: 12.09.16 fix freezing thread
         HazelcastInstance hz1 = initHzCustomNode();
-        processKeyMap(hz1, new KryoPersonStreamSerial("Dmitriy", "Shishmakov", "History"));
-        hz1.getCluster().shutdown();
+        processKeyMap(hz1, new PersonStreamSerial("Dmitriy", "Shishmakov", "History"));
     }
 
     private static void useSimpleKryoStreamSerializer(HazelcastInstance hz1, HazelcastInstance hz2) {
@@ -122,6 +129,7 @@ public class Chapter9 {
 
     private static HazelcastInstance initHzCustomNode() {
         Config config = buildClusterConfig();
+        config.getNetworkConfig().setPort(5703);
         GroupConfig group = config.getGroupConfig();
         group.setName("dev-hz-kryo");
         group.setPassword("dev-hz-kryo");
@@ -178,6 +186,16 @@ public class Chapter9 {
 
         mapBin.destroy();
         mapObj.destroy();
+    }
+
+    public static class PersonByteArraySerial extends Person {
+        public PersonByteArraySerial() {
+            /* need to be */
+        }
+
+        public PersonByteArraySerial(String name, String surname, String hobby) {
+            super(name, surname, hobby);
+        }
     }
 
     public static class KryoPersonStreamSerial extends Person {
@@ -503,12 +521,12 @@ public class Chapter9 {
 
         @Override
         public int getFactoryId() {
-            return FACTORY_ID_100;
+            return DATA_SERIAL_FACTORY_ID;
         }
 
         @Override
         public int getId() {
-            return CLASS_ID_101;
+            return DATA_SERIAL_ID_1;
         }
     }
 
@@ -536,12 +554,12 @@ public class Chapter9 {
 
         @Override
         public int getFactoryId() {
-            return FACTORY_ID_100;
+            return DATA_SERIAL_FACTORY_ID;
         }
 
         @Override
         public int getId() {
-            return CLASS_ID_102;
+            return DATA_SERIAL_ID_2;
         }
     }
 

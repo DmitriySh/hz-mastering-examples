@@ -42,7 +42,7 @@ public class MapStreamSerialImpl implements StreamSerializer<Map<?, ?>> {
 
     @Override
     public int getTypeId() {
-        return StreamSerializerIds.MAP_SERIALIZER;
+        return SerializerIds.MAP_SERIALIZER;
     }
 
     @Override

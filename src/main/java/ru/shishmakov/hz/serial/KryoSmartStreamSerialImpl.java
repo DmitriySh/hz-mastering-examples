@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkState;
-import static ru.shishmakov.hz.serial.StreamSerializerIds.SMART_KRYO_SERIALIZER;
+import static ru.shishmakov.hz.serial.SerializerIds.SMART_KRYO_SERIALIZER;
 
 /**
  * Created by dima on 11.09.16.

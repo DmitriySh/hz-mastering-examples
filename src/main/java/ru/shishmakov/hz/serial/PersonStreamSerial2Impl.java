@@ -32,7 +32,7 @@ public class PersonStreamSerial2Impl implements StreamSerializer<PersonStreamSer
 
     @Override
     public int getTypeId() {
-        return StreamSerializerIds.PERSON_SERIALIZER_2;
+        return SerializerIds.PERSON_SERIALIZER_2;
     }
 
     @Override
