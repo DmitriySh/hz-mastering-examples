@@ -4,7 +4,7 @@
                   xmlns="http://www.hazelcast.com/schema/client-config">
 
     <group>
-        <name>dev-hz-example</name>
-        <password>dev-hz-example</password>
+        <name>dev-hz</name>
+        <password>dev-hz</password>
     </group>
 </hazelcast-client>

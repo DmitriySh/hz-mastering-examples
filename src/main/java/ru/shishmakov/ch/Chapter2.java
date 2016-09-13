@@ -3,6 +3,7 @@ package ru.shishmakov.ch;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
+import com.hazelcast.util.UuidUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +23,7 @@ public class Chapter2 {
 
         IdGenerator generator = hz1.getIdGenerator("IdGenerator");
         IMap<String, Number> map3 = hz1.getMap("testmap" + generator.newId());
-        String key = hz1.getPartitionService().randomPartitionKey();
+        String key = UuidUtil.createClusterUuid();
         IMap<String, Number> map4 = hz2.getMap("testmap3@" + key);
         IMap<String, Number> map5 = hz2.getMap("testmap4s@" + key);
 

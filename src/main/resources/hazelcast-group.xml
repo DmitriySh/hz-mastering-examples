@@ -4,7 +4,7 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
     <group>
-        <name>dev-hz-example</name>
-        <password>dev-hz-example</password>
+        <name>dev-hz</name>
+        <password>dev-hz</password>
     </group>
 </hazelcast>
