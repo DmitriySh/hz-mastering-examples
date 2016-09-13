@@ -1,9 +1,6 @@
 package ru.shishmakov.ch;
 
-import com.hazelcast.core.BaseMap;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.TransactionalMap;
+import com.hazelcast.core.*;
 import com.hazelcast.transaction.TransactionContext;
 import com.hazelcast.transaction.TransactionOptions;
 import com.hazelcast.transaction.TransactionOptions.TransactionType;
@@ -26,7 +23,40 @@ public class Chapter10 {
 
 //        simpleTransactionContext(hz1, hz2);
 //        useTimeoutTransactionOptions(hz1, hz2);
-        useDurabilityTransactionOptions(hz1, hz2);
+//        useDurabilityTransactionOptions(hz1, hz2);
+        executeTransactionalTask(hz1, hz2);
+    }
+
+    private static void executeTransactionalTask(HazelcastInstance hz1, HazelcastInstance hz2) {
+        logger.debug("-- HZ execute Transactional Task --");
+
+        IMap<String, Integer> tranMap = hz2.getMap("tranMap");
+        IMap<String, Integer> nonTranMap = hz2.getMap("nonTranMap");
+        Consumer<BaseMap<String, Integer>> putAction = map -> {
+            map.put(UUID.randomUUID().toString(), 100);
+            map.put(UUID.randomUUID().toString(), 200);
+            map.put(UUID.randomUUID().toString(), 300);
+        };
+        Consumer<IMap<String, Integer>> checkAction = map -> {
+            logger.debug("After action; {}: {}", map.getName(), map.entrySet());
+            map.clear();
+        };
+
+
+        logger.debug("Start success changes ---");
+        executeTransactional(hz1, putAction, () -> logger.debug("Joke Boom! (>_<)"));
+        checkAction.accept(tranMap);
+        checkAction.accept(nonTranMap);
+
+        logger.debug("Start fail changes ---");
+        executeTransactional(hz1, putAction, () -> {
+            throw new RuntimeException("Bada BooM!!!");
+        });
+        checkAction.accept(tranMap);
+        checkAction.accept(nonTranMap);
+
+        tranMap.destroy();
+        nonTranMap.destroy();
     }
 
     private static void useDurabilityTransactionOptions(HazelcastInstance hz1, HazelcastInstance hz2) {
@@ -41,10 +71,14 @@ public class Chapter10 {
         logger.debug("start transaction");
         context.beginTransaction();
         try {
+            TransactionalSet<Integer> tranSet = context.getSet("tranSet");
             TransactionalMap<String, Integer> tranMap = context.getMap("tranMap");
             tranMap.put(UUID.randomUUID().toString(), 100);
             tranMap.put(UUID.randomUUID().toString(), 200);
             tranMap.put(UUID.randomUUID().toString(), 300);
+            tranSet.add(100);
+            tranSet.add(200);
+            tranSet.add(300);
 
             logger.debug("shutdown hz1 ---");
             for (int i = 0; i < 10; i++) TimeUnit.MILLISECONDS.sleep(100);
@@ -61,9 +95,12 @@ public class Chapter10 {
         }
 
         IMap<String, Integer> map = hz2.getMap("tranMap");
+        ISet<Integer> set = hz2.getSet("tranSet");
         logger.debug("After action; {} size: {}, data set: {}", map.getName(), map.size(), map.entrySet());
+        logger.debug("After action; {} size: {}, data set: {}", set.getName(), set.size(), set.toArray());
 
         map.destroy();
+        set.destroy();
     }
 
     private static void useTimeoutTransactionOptions(HazelcastInstance hz1, HazelcastInstance hz2) {
@@ -120,12 +157,12 @@ public class Chapter10 {
 
 
         logger.debug("Start success changes ---");
-        fillTransactionalData(hz1, hz2, putAction, () -> logger.debug("Joke Boom! (>_<)"));
+        fillTransactionalData(hz1, putAction, () -> logger.debug("Joke Boom! (>_<)"));
         checkAction.accept(tranMap);
         checkAction.accept(nonTranMap);
 
         logger.debug("Start fail changes ---");
-        fillTransactionalData(hz1, hz2, putAction, () -> {
+        fillTransactionalData(hz1, putAction, () -> {
             throw new RuntimeException("Bada BooM!!!");
         });
         checkAction.accept(tranMap);
@@ -135,14 +172,14 @@ public class Chapter10 {
         nonTranMap.destroy();
     }
 
-    private static void fillTransactionalData(HazelcastInstance hz1, HazelcastInstance hz2,
+    private static void fillTransactionalData(HazelcastInstance hz1,
                                               Consumer<BaseMap<String, Integer>> action, Runnable mine) {
         TransactionContext context = hz1.newTransactionContext();
         logger.debug("start transaction");
         context.beginTransaction();
         try {
             TransactionalMap<String, Integer> tranMap = context.getMap("tranMap");
-            IMap<String, Integer> nonTranMap = hz2.getMap("nonTranMap");
+            IMap<String, Integer> nonTranMap = hz1.getMap("nonTranMap");
 
             action.accept(tranMap);
             action.accept(nonTranMap);
@@ -155,4 +192,25 @@ public class Chapter10 {
             context.rollbackTransaction();
         }
     }
+
+    private static void executeTransactional(HazelcastInstance hz1, Consumer<BaseMap<String, Integer>> putAction,
+                                             Runnable mine) {
+        try {
+            hz1.executeTransaction(context -> {
+                logger.debug("start into transaction");
+
+                TransactionalMap<String, Integer> tranMap = context.getMap("tranMap");
+                IMap<String, Integer> nonTranMap = hz1.getMap("nonTranMap");
+                putAction.accept(tranMap);
+                putAction.accept(nonTranMap);
+                mine.run();
+
+                logger.debug("end into transaction");
+                return null;
+            });
+        } catch (Exception e) {
+            logger.error("Error", e);
+        }
+    }
+
 }
