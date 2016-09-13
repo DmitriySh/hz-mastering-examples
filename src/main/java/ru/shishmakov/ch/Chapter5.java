@@ -30,7 +30,7 @@ import java.util.stream.IntStream;
 import static java.time.Month.*;
 
 /**
- * Created by dima on 19.06.16.
+ * @author Dmitriy Shishmakov
  */
 public class Chapter5 {
 

@@ -8,7 +8,7 @@ import static ru.shishmakov.hz.serial.SerializerIds.DATA_SERIAL_ID_1;
 import static ru.shishmakov.hz.serial.SerializerIds.DATA_SERIAL_ID_2;
 
 /**
- * Created by dima on 04.09.16.
+ * @author Dmitriy Shishmakov
  */
 public class DataSerializableImpl implements DataSerializableFactory {
 

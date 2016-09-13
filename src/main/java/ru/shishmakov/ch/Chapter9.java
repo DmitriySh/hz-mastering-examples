@@ -27,7 +27,7 @@ import static ru.shishmakov.hz.serial.PortableSerializableImpl.*;
 import static ru.shishmakov.hz.serial.SerializerIds.*;
 
 /**
- * Created by dima on 02.09.16.
+ * @author Dmitriy Shishmakov
  */
 public class Chapter9 {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

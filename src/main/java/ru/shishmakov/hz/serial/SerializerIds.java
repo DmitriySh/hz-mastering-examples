@@ -1,7 +1,7 @@
 package ru.shishmakov.hz.serial;
 
 /**
- * Created by dima on 10.09.16.
+ * @author Dmitriy Shishmakov
  */
 public final class SerializerIds {
     private static int counter = 300;

@@ -15,7 +15,7 @@ import java.util.Map;
 import static ru.shishmakov.ch.Chapter5.*;
 
 /**
- * Created by dima on 07.08.16.
+ * @author Dmitriy Shishmakov
  */
 public class EmployeeMapStrore implements MapStore<String, Chapter5.Employee2>, Serializable {
 

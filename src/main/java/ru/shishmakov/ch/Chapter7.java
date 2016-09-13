@@ -18,7 +18,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
- * Created by dima on 21.08.16.
+ * @author Dmitriy Shishmakov
  */
 public class Chapter7 {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

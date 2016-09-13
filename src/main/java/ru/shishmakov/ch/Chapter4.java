@@ -15,7 +15,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
 /**
- * Created by dima on 15.06.16.
+ * @author Dmitriy Shishmakov
  */
 public class Chapter4 {
 

@@ -16,7 +16,7 @@ import static ru.shishmakov.Main.GROUP_NAME;
 import static ru.shishmakov.Main.GROUP_PASSWORD;
 
 /**
- * Created by dima on 02.09.16.
+ * @author Dmitriy Shishmakov
  */
 public class HzClusterConfig {
 

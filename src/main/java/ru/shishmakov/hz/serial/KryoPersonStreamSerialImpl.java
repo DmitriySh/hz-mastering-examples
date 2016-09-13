@@ -16,7 +16,7 @@ import java.io.OutputStream;
 import java.lang.invoke.MethodHandles;
 
 /**
- * Created by dima on 10.09.16.
+ * @author Dmitriy Shishmakov
  */
 public class KryoPersonStreamSerialImpl implements StreamSerializer<KryoPersonStreamSerial> {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

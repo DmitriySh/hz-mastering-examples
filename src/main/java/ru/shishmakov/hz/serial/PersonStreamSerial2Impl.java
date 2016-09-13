@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
 /**
- * Created by dima on 10.09.16.
+ * @author Dmitriy Shishmakov
  */
 public class PersonStreamSerial2Impl implements StreamSerializer<PersonStreamSerial2> {
 

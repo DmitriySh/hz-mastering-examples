@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 import static ru.shishmakov.hz.serial.SerializerIds.PERSON_BYTE_ARRAY_SERIALIZER;
 
 /**
- * Created by dima on 12.09.16.
+ * @author Dmitriy Shishmakov
  */
 public class PersonByteArraySerialImpl implements ByteArraySerializer<PersonByteArraySerial> {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

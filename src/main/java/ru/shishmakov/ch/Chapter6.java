@@ -14,7 +14,7 @@ import static ru.shishmakov.hz.cfg.HzClusterConfig.buildHZInstance;
 
 
 /**
- * Created by dima on 14.08.16.
+ * @author Dmitriy Shishmakov
  */
 public class Chapter6 {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

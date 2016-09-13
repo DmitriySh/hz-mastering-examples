@@ -13,7 +13,7 @@ import java.util.Map;
 
 
 /**
- * Created by dima on 10.09.16.
+ * @author Dmitriy Shishmakov
  */
 public class MapStreamSerialImpl implements StreamSerializer<Map<?, ?>> {
 

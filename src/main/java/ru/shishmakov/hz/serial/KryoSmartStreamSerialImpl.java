@@ -26,7 +26,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static ru.shishmakov.hz.serial.SerializerIds.SMART_KRYO_SERIALIZER;
 
 /**
- * Created by dima on 11.09.16.
+ * @author Dmitriy Shishmakov
  */
 public class KryoSmartStreamSerialImpl<T> implements StreamSerializer<T> {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

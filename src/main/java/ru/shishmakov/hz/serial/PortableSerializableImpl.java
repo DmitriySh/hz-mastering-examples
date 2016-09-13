@@ -5,7 +5,7 @@ import com.hazelcast.nio.serialization.PortableFactory;
 import ru.shishmakov.ch.Chapter9;
 
 /**
- * Created by dima on 04.09.16.
+ * @author Dmitriy Shishmakov
  */
 public class PortableSerializableImpl implements PortableFactory {
 

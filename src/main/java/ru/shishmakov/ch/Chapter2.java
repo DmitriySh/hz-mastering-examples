@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * Created by dima on 12.06.16.
+ * @author Dmitriy Shishmakov
  */
 public class Chapter2 {
 
