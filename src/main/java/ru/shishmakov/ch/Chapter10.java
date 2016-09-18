@@ -50,11 +50,11 @@ public class Chapter10 {
         };
         Runnable timeoutAction = () -> {
             logger.debug("Timeout start ...  {} sec", timeoutSec);
-//            try {
-//                TimeUnit.SECONDS.sleep(timeoutSec * 2);
-//            } catch (InterruptedException e) {
-//                throw new IllegalStateException("Error", e);
-//            }
+            try {
+                TimeUnit.SECONDS.sleep(timeoutSec * 2);
+            } catch (InterruptedException e) {
+                throw new IllegalStateException("Error", e);
+            }
         };
 
         fillDataXATransactional(hz1, timeoutSec, putAction, timeoutAction);
