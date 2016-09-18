@@ -9,7 +9,6 @@ import com.hazelcast.transaction.TransactionOptions.TransactionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.xa.XAResource;
 import java.lang.invoke.MethodHandles;
@@ -30,12 +29,46 @@ public class Chapter10 {
 //        useTimeoutTransactionOptions(hz1, hz2);
 //        useDurabilityTransactionOptions(hz1, hz2);
 //        executeTransactionalTask(hz1, hz2);
-        useXATransactions(hz1, hz2);
+//        useXATransaction(hz1, hz2);
+        useTimeoutXATransaction(hz1, hz2);
     }
 
-    private static void useXATransactions(HazelcastInstance hz1, HazelcastInstance hz2) {
+    private static void useTimeoutXATransaction(HazelcastInstance hz1, HazelcastInstance hz2) {
+        logger.debug("-- HZ timeoutAction XA Transactions --");
+
+        int timeoutSec = 4;
+        IMap<String, Integer> tranMap = hz2.getMap("tranMap");
+        IMap<String, Integer> nonTranMap = hz2.getMap("nonTranMap");
+        Consumer<BaseMap<String, Integer>> putAction = map -> {
+            map.put(UUID.randomUUID().toString(), 100);
+            map.put(UUID.randomUUID().toString(), 200);
+            map.put(UUID.randomUUID().toString(), 300);
+        };
+        Consumer<IMap<String, Integer>> checkAction = map -> {
+            logger.debug("After action; {}: {}", map.getName(), map.entrySet());
+            map.clear();
+        };
+        Runnable timeoutAction = () -> {
+            logger.debug("Timeout start ...  {} sec", timeoutSec);
+//            try {
+//                TimeUnit.SECONDS.sleep(timeoutSec * 2);
+//            } catch (InterruptedException e) {
+//                throw new IllegalStateException("Error", e);
+//            }
+        };
+
+        fillDataXATransactional(hz1, timeoutSec, putAction, timeoutAction);
+        checkAction.accept(tranMap);
+        checkAction.accept(nonTranMap);
+
+        tranMap.destroy();
+        nonTranMap.destroy();
+    }
+
+    private static void useXATransaction(HazelcastInstance hz1, HazelcastInstance hz2) {
         logger.debug("-- HZ XA Transactions --");
 
+        int timeoutSec = 30;
         IMap<String, Integer> tranMap = hz2.getMap("tranMap");
         IMap<String, Integer> nonTranMap = hz2.getMap("nonTranMap");
         Consumer<BaseMap<String, Integer>> putAction = map -> {
@@ -49,12 +82,12 @@ public class Chapter10 {
         };
 
         logger.debug("Start success changes ---");
-        fillDataXATransactional(hz1, putAction, () -> logger.debug("Joke Boom! (>_<)"));
+        fillDataXATransactional(hz1, timeoutSec, putAction, () -> logger.debug("Joke Boom! (>_<)"));
         checkAction.accept(tranMap);
         checkAction.accept(nonTranMap);
 
         logger.debug("Start fail changes ---");
-        fillDataXATransactional(hz1, putAction, () -> {
+        fillDataXATransactional(hz1, timeoutSec, putAction, () -> {
             throw new RuntimeException("Bada BooM!!!");
         });
         checkAction.accept(tranMap);
@@ -209,12 +242,13 @@ public class Chapter10 {
         nonTranMap.destroy();
     }
 
-    private static void fillDataXATransactional(HazelcastInstance hz, Consumer<BaseMap<String, Integer>> putAction, Runnable mine) {
+    private static void fillDataXATransactional(HazelcastInstance hz, int timeoutSec,
+                                                Consumer<BaseMap<String, Integer>> putAction, Runnable mine) {
         HazelcastXAResource xaResource = hz.getXAResource();
         UserTransactionManager tm = new UserTransactionManager();
         try {
             logger.debug("start transaction");
-            tm.setTransactionTimeout(90);
+            tm.setTransactionTimeout(timeoutSec);
             tm.begin();
             Transaction transaction = tm.getTransaction();
             transaction.enlistResource(xaResource);
@@ -233,7 +267,7 @@ public class Chapter10 {
             try {
                 logger.debug("rollback transaction", e);
                 tm.rollback();
-            } catch (SystemException ex) {
+            } catch (Exception ex) {
                 logger.debug("Error", ex);
             }
         }
