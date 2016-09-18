@@ -28,8 +28,7 @@ build/
 *.ear
 
 # Project files
-log_test.txt
-log.txt
+*.log
 
 #Mac OS
 *.DS_Store
