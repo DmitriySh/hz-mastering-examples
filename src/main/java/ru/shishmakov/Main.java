@@ -4,7 +4,7 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.shishmakov.ch.Chapter10;
+import ru.shishmakov.ch.Chapter11;
 
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.ExecutorService;
@@ -36,7 +36,8 @@ public class Main {
 //            Chapter7.doExamples(hz1, hz2, service);
 //            Chapter8.doExamples(hz1, hz2, service);
 //            Chapter9.doExamples(hz1, hz2);
-            Chapter10.doExamples(hz1, hz2);
+//            Chapter10.doExamples(hz1, hz2);
+            Chapter11.doExamples(hz1, hz2);
         } finally {
             service.shutdownNow();
             service.awaitTermination(15, TimeUnit.SECONDS);
