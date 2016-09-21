@@ -45,9 +45,9 @@ public class Chapter11 {
 
         cache = cacheManager.getCache("cache2", String.class, Integer.class);
 
-        logger.debug("cache {}", cache);
+        logger.debug("cache: {}", cache);
         logger.debug("cache friday: {}", cache.get("Friday"));
 
-        cacheManager.destroyCache("cache2");
+        cachingProvider.close();
     }
 }
