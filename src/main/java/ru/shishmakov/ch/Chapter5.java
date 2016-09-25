@@ -861,7 +861,6 @@ public class Chapter5 {
     }
 
     public static class Employee implements Serializable {
-
         private final int prepayment;
         private int salary;
 

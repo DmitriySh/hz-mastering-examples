@@ -159,4 +159,20 @@
         </serializers>
     </serialization>
 
+    <cache name="xmlCacheLoaderWriter">
+        <key-type class-name="java.lang.String"/>
+        <value-type class-name="java.lang.Integer"/>
+
+        <read-through>true</read-through>
+        <write-through>true</write-through>
+        <statistics-enabled>true</statistics-enabled>
+        <management-enabled>false</management-enabled>
+
+        <cache-loader-factory class-name="ru.shishmakov.ch.Chapter11$XmlStoreCacheLoader"/>
+        <cache-writer-factory class-name="ru.shishmakov.ch.Chapter11$XmlStoreCacheWriter"/>
+
+        <!--<backup-count>1</backup-count>-->
+        <!--<async-backup-count>0</async-backup-count>-->
+    </cache>
+
 </hazelcast>
