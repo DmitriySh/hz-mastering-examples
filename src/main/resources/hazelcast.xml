@@ -171,8 +171,34 @@
         <cache-loader-factory class-name="ru.shishmakov.ch.Chapter11$XmlStoreCacheLoader"/>
         <cache-writer-factory class-name="ru.shishmakov.ch.Chapter11$XmlStoreCacheWriter"/>
 
-        <!--<backup-count>1</backup-count>-->
-        <!--<async-backup-count>0</async-backup-count>-->
+        <backup-count>1</backup-count>
+        <async-backup-count>0</async-backup-count>
+    </cache>
+
+    <cache name="cache">
+        <key-type class-name="java.lang.String"/>
+        <value-type class-name="java.lang.Integer"/>
+
+        <backup-count>1</backup-count>
+        <async-backup-count>0</async-backup-count>
+    </cache>
+
+    <cache name="cacheEntryListener">
+        <key-type class-name="java.lang.String"/>
+        <value-type class-name="java.lang.Integer"/>
+
+        <cache-entry-listeners>
+            <cache-entry-listener synchronous="false">
+                <cache-entry-listener-factory class-name="ru.shishmakov.ch.Chapter11$CacheEntryListenerFactory"/>
+            </cache-entry-listener>
+        </cache-entry-listeners>
+
+        <expiry-policy-factory>
+            <timed-expiry-policy-factory time-unit="SECONDS" duration-amount="5" expiry-policy-type="ACCESSED"/>
+        </expiry-policy-factory>
+
+        <backup-count>1</backup-count>
+        <async-backup-count>0</async-backup-count>
     </cache>
 
 </hazelcast>

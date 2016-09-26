@@ -7,10 +7,10 @@ import org.slf4j.LoggerFactory;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
-import javax.cache.configuration.Configuration;
 import javax.cache.configuration.Factory;
 import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableConfiguration;
+import javax.cache.event.*;
 import javax.cache.integration.CacheLoader;
 import javax.cache.integration.CacheLoaderException;
 import javax.cache.integration.CacheWriter;
@@ -21,9 +21,7 @@ import javax.cache.processor.MutableEntry;
 import javax.cache.spi.CachingProvider;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Dmitriy Shishmakov on 20.09.16
@@ -48,8 +46,26 @@ public class Chapter11 {
         logger.info("-- Chapter 11. JCache Provider --");
 
 //        simpleCachingProvider();
-//        useCacheLoaderWriterListener();
-        useCacheEntryProcessor();
+//        useProgramAndXmlCacheLoaderWriterListener();
+//        useCacheEntryProcessor();
+        useCacheEntryListener();
+    }
+
+    private static void useCacheEntryListener() {
+        logger.info("-- HZ JCache EntryListener --");
+
+        try (CachingProvider provider = Caching.getCachingProvider()) {
+            CacheManager cacheManager = provider.getCacheManager();
+            Cache<String, Integer> cache = cacheManager.getCache("cacheEntryListener", String.class, Integer.class);
+
+            cache.putAll(store);
+            cache.put("Wednesday", 300);
+            cache.remove("Thursday");
+            logger.debug("{} thread is registered", Thread.currentThread());
+            Thread.sleep(15_000);
+        } catch (InterruptedException e) {
+            logger.debug("error: {}", e, 300);
+        }
     }
 
     private static void useCacheEntryProcessor() {
@@ -57,14 +73,14 @@ public class Chapter11 {
 
         try (CachingProvider provider = Caching.getCachingProvider()) {
             CacheManager cacheManager = provider.getCacheManager();
-            Cache<String, Integer> xmlCache = cacheManager.getCache("xmlCacheLoaderWriter", String.class, Integer.class);
+            Cache<String, Integer> cache = cacheManager.getCache("cache", String.class, Integer.class);
 
-            xmlCache.putAll(store);
-            xmlCache.invokeAll(store.keySet(), new MultiplierCacheProcessor(5), 10);
+            cache.putAll(store);
+            cache.invokeAll(store.keySet(), new MultiplierCacheProcessor(5), 10);
         }
     }
 
-    private static void useCacheLoaderWriterListener() {
+    private static void useProgramAndXmlCacheLoaderWriterListener() {
         logger.info("-- HZ backing JCache CacheLoader and CacheWriter --");
 
 //        CachingProvider provider = Caching.getCachingProvider("com.hazelcast.cache.HazelcastCachingProvider")
@@ -105,9 +121,7 @@ public class Chapter11 {
 //        try (CachingProvider provider = Caching.getCachingProvider("com.hazelcast.cache.HazelcastCachingProvider")) {
         try (CachingProvider provider = Caching.getCachingProvider()) {
             CacheManager cacheManager = provider.getCacheManager();
-            Configuration<String, Integer> configuration = new MutableConfiguration<String, Integer>()
-                    .setTypes(String.class, Integer.class);
-            Cache<String, Integer> cache = cacheManager.createCache("cache2", configuration);
+            Cache<String, Integer> cache = cacheManager.getCache("cache", String.class, Integer.class);
 
             Map<Object, Object> temp = new HashMap<>();
             cache.forEach(e -> temp.put(e.getKey(), e.getValue()));
@@ -128,7 +142,51 @@ public class Chapter11 {
         }
     }
 
-    public static class MultiplierCacheProcessor implements EntryProcessor<String, Integer, Integer>, Serializable {
+    public static class CacheEntryListenerFactory implements Factory<CacheEntryListener> {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public CacheEntryListener create() {
+            return new CacheEntryListener();
+        }
+    }
+
+    public static class CacheEntryListener implements CacheEntryCreatedListener<String, Integer>,
+            CacheEntryUpdatedListener<String, Integer>,
+            CacheEntryRemovedListener<String, Integer>,
+            CacheEntryExpiredListener<String, Integer> {
+        private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+        @Override
+        public void onCreated(Iterable<CacheEntryEvent<? extends String, ? extends Integer>> cacheEntryEvents) throws CacheEntryListenerException {
+            Map<String, Integer> map = new HashMap<>();
+            cacheEntryEvents.forEach(e -> map.put(e.getKey(), e.getValue()));
+            logger.debug("create entry: {}", map);
+        }
+
+        @Override
+        public void onUpdated(Iterable iterable) throws CacheEntryListenerException {
+            List<Object> list = new ArrayList<>();
+            iterable.forEach(list::add);
+            logger.debug("update entry: {}", list);
+        }
+
+        @Override
+        public void onRemoved(Iterable<CacheEntryEvent<? extends String, ? extends Integer>> cacheEntryEvents) throws CacheEntryListenerException {
+            Map<String, Integer> map = new HashMap<>();
+            cacheEntryEvents.forEach(e -> map.put(e.getKey(), e.getValue()));
+            logger.debug("remove entry: {}", map);
+        }
+
+        @Override
+        public void onExpired(Iterable<CacheEntryEvent<? extends String, ? extends Integer>> cacheEntryEvents) throws CacheEntryListenerException {
+            Map<String, Integer> map = new HashMap<>();
+            cacheEntryEvents.forEach(e -> map.put(e.getKey(), e.getValue()));
+            logger.debug("expire entry: {}", map);
+        }
+    }
+
+    public static class MultiplierCacheProcessor implements EntryProcessor<String, Integer, Void>, Serializable {
         private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
         private static final long serialVersionUID = 1L;
         private final Integer threshold;
@@ -138,7 +196,7 @@ public class Chapter11 {
         }
 
         @Override
-        public Integer process(MutableEntry<String, Integer> entry, Object... arguments) throws EntryProcessorException {
+        public Void process(MutableEntry<String, Integer> entry, Object... arguments) throws EntryProcessorException {
             int newValue = (int) arguments[0];
             Integer oldValue = entry.getValue();
             if (oldValue > threshold) {
