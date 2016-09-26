@@ -15,6 +15,9 @@ import javax.cache.integration.CacheLoader;
 import javax.cache.integration.CacheLoaderException;
 import javax.cache.integration.CacheWriter;
 import javax.cache.integration.CacheWriterException;
+import javax.cache.processor.EntryProcessor;
+import javax.cache.processor.EntryProcessorException;
+import javax.cache.processor.MutableEntry;
 import javax.cache.spi.CachingProvider;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
@@ -29,17 +32,9 @@ public class Chapter11 {
 
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public static void doExamples(HazelcastInstance hz1, HazelcastInstance hz2) {
-        logger.info("-- Chapter 11. JCache Provider --");
+    private static final Map<String, Integer> store = new HashMap<>();
 
-//        simpleCachingProvider();
-        useCacheLoaderWriterListener();
-    }
-
-    private static void useCacheLoaderWriterListener() {
-        logger.info("-- HZ loader and writer JCache --");
-
-        Map<String, Integer> store = new HashMap<>();
+    static {
         store.put("Monday", 1);
         store.put("Tuesday", 2);
         store.put("Wednesday", 3);
@@ -47,6 +42,30 @@ public class Chapter11 {
         store.put("Friday", 5);
         store.put("Saturday", 6);
         store.put("Sunday", 7);
+    }
+
+    public static void doExamples(HazelcastInstance hz1, HazelcastInstance hz2) {
+        logger.info("-- Chapter 11. JCache Provider --");
+
+//        simpleCachingProvider();
+//        useCacheLoaderWriterListener();
+        useCacheEntryProcessor();
+    }
+
+    private static void useCacheEntryProcessor() {
+        logger.info("-- HZ JCache EntryProcessor --");
+
+        try (CachingProvider provider = Caching.getCachingProvider()) {
+            CacheManager cacheManager = provider.getCacheManager();
+            Cache<String, Integer> xmlCache = cacheManager.getCache("xmlCacheLoaderWriter", String.class, Integer.class);
+
+            xmlCache.putAll(store);
+            xmlCache.invokeAll(store.keySet(), new MultiplierCacheProcessor(5), 10);
+        }
+    }
+
+    private static void useCacheLoaderWriterListener() {
+        logger.info("-- HZ backing JCache CacheLoader and CacheWriter --");
 
 //        CachingProvider provider = Caching.getCachingProvider("com.hazelcast.cache.HazelcastCachingProvider")
         try (CachingProvider provider = Caching.getCachingProvider()) {
@@ -81,13 +100,18 @@ public class Chapter11 {
     private static void simpleCachingProvider() {
         logger.info("-- HZ simple JCache --");
 
-//        CachingProvider provider = Caching.getCachingProvider("com.hazelcast.cache.HazelcastCachingProvider");
+//        try (CachingProvider provider = Caching.getCachingProvider("com.hazelcast.client.cache.impl.HazelcastClientCachingProvider")) {
+//        try (CachingProvider provider = Caching.getCachingProvider("com.hazelcast.cache.impl.HazelcastServerCachingProvider")) {
+//        try (CachingProvider provider = Caching.getCachingProvider("com.hazelcast.cache.HazelcastCachingProvider")) {
         try (CachingProvider provider = Caching.getCachingProvider()) {
             CacheManager cacheManager = provider.getCacheManager();
             Configuration<String, Integer> configuration = new MutableConfiguration<String, Integer>()
                     .setTypes(String.class, Integer.class);
             Cache<String, Integer> cache = cacheManager.createCache("cache2", configuration);
 
+            Map<Object, Object> temp = new HashMap<>();
+            cache.forEach(e -> temp.put(e.getKey(), e.getValue()));
+            logger.debug("cache before: {}", temp);
             cache.put("Monday", 1);
             cache.put("Tuesday", 2);
             cache.put("Wednesday", 3);
@@ -97,12 +121,33 @@ public class Chapter11 {
             cache.put("Sunday", 7);
 
             cache = cacheManager.getCache("cache2", String.class, Integer.class);
-
-            logger.debug("cache: {}", cache);
+            temp.clear();
+            cache.forEach(e -> temp.put(e.getKey(), e.getValue()));
+            logger.debug("cache after: {}", temp);
             logger.debug("cache friday: {}", cache.get("Friday"));
         }
     }
 
+    public static class MultiplierCacheProcessor implements EntryProcessor<String, Integer, Integer>, Serializable {
+        private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+        private static final long serialVersionUID = 1L;
+        private final Integer threshold;
+
+        public MultiplierCacheProcessor(Integer threshold) {
+            this.threshold = threshold;
+        }
+
+        @Override
+        public Integer process(MutableEntry<String, Integer> entry, Object... arguments) throws EntryProcessorException {
+            int newValue = (int) arguments[0];
+            Integer oldValue = entry.getValue();
+            if (oldValue > threshold) {
+                entry.setValue(newValue);
+                logger.debug("oldValue: {}, newValue: {}", oldValue, newValue);
+            }
+            return null;
+        }
+    }
 
     public static class XmlStoreCacheLoader extends StoreCacheLoader implements Factory<StoreCacheLoader> {
         private static final long serialVersionUID = 1L;
@@ -113,8 +158,18 @@ public class Chapter11 {
         }
     }
 
+    public static class XmlStoreCacheWriter extends StoreCacheWriter implements Factory<StoreCacheWriter> {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public StoreCacheWriter create() {
+            return new XmlStoreCacheWriter();
+        }
+    }
+
     public static class StoreCacheLoader implements CacheLoader<String, Integer>, Serializable {
         private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
         private static final long serialVersionUID = 1L;
 
         @Override
@@ -128,15 +183,7 @@ public class Chapter11 {
             logger.debug("load keys: {}", keys);
             return null;
         }
-    }
 
-    public static class XmlStoreCacheWriter extends StoreCacheWriter implements Factory<StoreCacheWriter> {
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public StoreCacheWriter create() {
-            return new XmlStoreCacheWriter();
-        }
     }
 
     public static class StoreCacheWriter implements CacheWriter<String, Integer>, Serializable {
