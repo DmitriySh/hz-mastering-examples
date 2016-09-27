@@ -58,11 +58,15 @@ public class Chapter11 {
             CacheManager cacheManager = provider.getCacheManager();
             Cache<String, Integer> cache = cacheManager.getCache("cacheEntryListener", String.class, Integer.class);
 
+            int timeout = 10_000;
             cache.putAll(store);
             cache.put("Wednesday", 300);
             cache.remove("Thursday");
-            logger.debug("{} thread is registered", Thread.currentThread());
-            Thread.sleep(15_000);
+
+            logger.debug("Sleep in {} ms for expiration ...", timeout);
+            Thread.sleep(timeout);
+
+            cache.getAll(store.keySet());
         } catch (InterruptedException e) {
             logger.debug("error: {}", e, 300);
         }
@@ -151,10 +155,12 @@ public class Chapter11 {
         }
     }
 
-    public static class CacheEntryListener implements CacheEntryCreatedListener<String, Integer>,
+    public static class CacheEntryListener implements
+            CacheEntryCreatedListener<String, Integer>,
             CacheEntryUpdatedListener<String, Integer>,
             CacheEntryRemovedListener<String, Integer>,
             CacheEntryExpiredListener<String, Integer> {
+
         private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
         @Override
@@ -162,13 +168,6 @@ public class Chapter11 {
             Map<String, Integer> map = new HashMap<>();
             cacheEntryEvents.forEach(e -> map.put(e.getKey(), e.getValue()));
             logger.debug("create entry: {}", map);
-        }
-
-        @Override
-        public void onUpdated(Iterable iterable) throws CacheEntryListenerException {
-            List<Object> list = new ArrayList<>();
-            iterable.forEach(list::add);
-            logger.debug("update entry: {}", list);
         }
 
         @Override
@@ -183,6 +182,13 @@ public class Chapter11 {
             Map<String, Integer> map = new HashMap<>();
             cacheEntryEvents.forEach(e -> map.put(e.getKey(), e.getValue()));
             logger.debug("expire entry: {}", map);
+        }
+
+        @Override
+        public void onUpdated(Iterable<CacheEntryEvent<? extends String, ? extends Integer>> cacheEntryEvents) throws CacheEntryListenerException {
+            List<CacheEntryEvent> list = new ArrayList<>();
+            cacheEntryEvents.forEach(list::add);
+            logger.debug("update entry: {}", list);
         }
     }
 

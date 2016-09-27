@@ -194,7 +194,7 @@
         </cache-entry-listeners>
 
         <expiry-policy-factory>
-            <timed-expiry-policy-factory time-unit="SECONDS" duration-amount="5" expiry-policy-type="ACCESSED"/>
+            <timed-expiry-policy-factory time-unit="SECONDS" duration-amount="5" expiry-policy-type="TOUCHED"/>
         </expiry-policy-factory>
 
         <backup-count>1</backup-count>
