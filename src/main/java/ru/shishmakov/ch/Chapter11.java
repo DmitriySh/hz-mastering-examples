@@ -1,6 +1,9 @@
 package ru.shishmakov.ch;
 
+import com.hazelcast.cache.ICache;
+import com.hazelcast.core.ExecutionCallback;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.ICompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +25,7 @@ import javax.cache.spi.CachingProvider;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author Dmitriy Shishmakov on 20.09.16
@@ -48,7 +52,66 @@ public class Chapter11 {
 //        simpleCachingProvider();
 //        useProgramAndXmlCacheLoaderWriterListener();
 //        useCacheEntryProcessor();
-        useCacheEntryListener();
+//        useCacheEntryListener();
+        useICacheAsyncMethods();
+    }
+
+    private static void useICacheAsyncMethods() {
+        logger.info("-- HZ ICache async methods --");
+
+        try (CachingProvider provider = Caching.getCachingProvider()) {
+            CacheManager cacheManager = provider.getCacheManager();
+            Cache<String, Integer> cache = cacheManager.getCache("cache", String.class, Integer.class);
+
+            CountDownLatch latch = new CountDownLatch(1);
+
+            @SuppressWarnings("unchecked")
+            ICache<String, Integer> iCache = cache.unwrap(ICache.class);
+            ICompletableFuture<Void> future = iCache.putAsync("Monday", 1);
+            future.andThen(new ExecutionCallback<Void>() {
+                @Override
+                public void onResponse(Void response) {
+                    logger.debug("Async onResponse 1: {}", response);
+                    iCache.putIfAbsentAsync("Tuesday", 2).andThen(new ExecutionCallback<Boolean>() {
+                        @Override
+                        public void onResponse(Boolean response) {
+                            logger.debug("Async onResponse 2: {}", response);
+                            iCache.getAsync("Monday").andThen(new ExecutionCallback<Integer>() {
+                                @Override
+                                public void onResponse(Integer response) {
+                                    logger.debug("Async onResponse 3: {}", response);
+                                    logger.debug("Async methods has got response value: {}", response);
+                                    latch.countDown();
+                                }
+
+                                @Override
+                                public void onFailure(Throwable t) {
+                                    logger.debug("Error in async 3", t);
+                                    latch.countDown();
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onFailure(Throwable t) {
+                            logger.debug("Error in async 2", t);
+                            latch.countDown();
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    logger.debug("Error in async 1", t);
+                    latch.countDown();
+                }
+            });
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                logger.debug("Error", e);
+            }
+        }
     }
 
     private static void useCacheEntryListener() {
