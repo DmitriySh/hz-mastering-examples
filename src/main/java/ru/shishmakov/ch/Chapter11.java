@@ -14,6 +14,8 @@ import javax.cache.configuration.Factory;
 import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.event.*;
+import javax.cache.expiry.AccessedExpiryPolicy;
+import javax.cache.expiry.Duration;
 import javax.cache.integration.CacheLoader;
 import javax.cache.integration.CacheLoaderException;
 import javax.cache.integration.CacheWriter;
@@ -26,6 +28,9 @@ import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * @author Dmitriy Shishmakov on 20.09.16
@@ -53,7 +58,36 @@ public class Chapter11 {
 //        useProgramAndXmlCacheLoaderWriterListener();
 //        useCacheEntryProcessor();
 //        useCacheEntryListener();
-        useICacheAsyncMethods();
+//        useICacheAsyncMethods();
+        useICacheExpiryPolicy();
+    }
+
+    private static void useICacheExpiryPolicy() {
+        logger.info("-- HZ ICache expiry policy --");
+
+        try (CachingProvider provider = Caching.getCachingProvider()) {
+            CacheManager cacheManager = provider.getCacheManager();
+            Cache<String, Integer> cache = cacheManager.getCache("cache", String.class, Integer.class);
+
+            @SuppressWarnings("unchecked")
+            ICache<String, Integer> iCache = cache.unwrap(ICache.class);
+
+            String monday = "Monday";
+            logger.debug("add key: {} and sleep ...", monday);
+            iCache.put(monday, 1, new AccessedExpiryPolicy(Duration.ONE_DAY));
+            TimeUnit.SECONDS.sleep(3);
+            logger.debug("contains key: {}={}", monday, iCache.containsKey(monday));
+
+            String tuesday = "Tuesday";
+            logger.debug("add key: {} and sleep ...", tuesday);
+            iCache.put(tuesday, 1, new AccessedExpiryPolicy(new Duration(SECONDS, 3)));
+            TimeUnit.SECONDS.sleep(5);
+            logger.debug("contains key: {}={}", tuesday, iCache.containsKey(tuesday));
+
+
+        } catch (InterruptedException e) {
+            logger.debug("Error", e);
+        }
     }
 
     private static void useICacheAsyncMethods() {
