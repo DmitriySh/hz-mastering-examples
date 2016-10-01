@@ -3,6 +3,7 @@ package ru.shishmakov.ch;
 import com.hazelcast.cache.HazelcastCachingProvider;
 import com.hazelcast.cache.ICache;
 import com.hazelcast.core.ExecutionCallback;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ICompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +53,7 @@ public class Chapter11 {
         store.put("Sunday", 7);
     }
 
-    public static void doExamples() {
+    public static void doExamples(HazelcastInstance hz1, HazelcastInstance hz2) {
         logger.info("-- Chapter 11. JCache Provider --");
 
 //        customHzCacheManager();
@@ -64,7 +65,27 @@ public class Chapter11 {
 //        useCacheEntryListener();
 //        useICacheAsyncMethods();
 //        useICacheKeyExpiryPolicy();
-        useICacheConfigExpiryPolicy();
+//        useICacheConfigExpiryPolicy();
+        bindICacheWithHzInstance(hz1, hz2);
+    }
+
+    private static void bindICacheWithHzInstance(HazelcastInstance hz1, HazelcastInstance hz2) {
+        logger.info("-- HZ ICache bind with HZ instance --");
+
+        String instanceName = hz2.getName();
+
+        Properties properties = new Properties();
+        properties.put(HazelcastCachingProvider.HAZELCAST_INSTANCE_NAME, instanceName);
+        properties.setProperty(HazelcastCachingProvider.HAZELCAST_CONFIG_LOCATION, "classpath:hazelcast-client.xml");
+        try (CachingProvider provider = Caching.getCachingProvider()) {
+            CacheManager cacheManager = provider.getCacheManager(new URI("custom_cache_manager"), null, properties);
+            Cache<String, Integer> cache = cacheManager.getCache("cache", String.class, Integer.class);
+
+            cache.putAll(store);
+            logger.debug("key Thursday: {}", cache.get("Thursday"));
+        } catch (Exception e) {
+            logger.debug("Error", e);
+        }
     }
 
     private static void useICacheConfigExpiryPolicy() {

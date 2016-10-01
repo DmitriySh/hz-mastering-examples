@@ -37,7 +37,7 @@ public class Main {
 //            Chapter8.doExamples(hz1, hz2, service);
 //            Chapter9.doExamples(hz1, hz2);
 //            Chapter10.doExamples(hz1, hz2);
-            Chapter11.doExamples();
+            Chapter11.doExamples(hz1, hz2);
         } finally {
             service.shutdownNow();
             service.awaitTermination(15, TimeUnit.SECONDS);
