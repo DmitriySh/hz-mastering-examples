@@ -1,8 +1,8 @@
 package ru.shishmakov.ch;
 
+import com.hazelcast.cache.HazelcastCachingProvider;
 import com.hazelcast.cache.ICache;
 import com.hazelcast.core.ExecutionCallback;
-import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ICompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +26,7 @@ import javax.cache.processor.MutableEntry;
 import javax.cache.spi.CachingProvider;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
+import java.net.URI;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -51,19 +52,54 @@ public class Chapter11 {
         store.put("Sunday", 7);
     }
 
-    public static void doExamples(HazelcastInstance hz1, HazelcastInstance hz2) {
+    public static void doExamples() {
         logger.info("-- Chapter 11. JCache Provider --");
 
+//        customHzCacheManager();
+//        clientProviderCacheManager();
+//        serverProviderCacheManager();
 //        simpleCachingProvider();
 //        useProgramAndXmlCacheLoaderWriterListener();
 //        useCacheEntryProcessor();
 //        useCacheEntryListener();
 //        useICacheAsyncMethods();
-        useICacheExpiryPolicy();
+//        useICacheKeyExpiryPolicy();
+        useICacheConfigExpiryPolicy();
     }
 
-    private static void useICacheExpiryPolicy() {
-        logger.info("-- HZ ICache expiry policy --");
+    private static void useICacheConfigExpiryPolicy() {
+        logger.info("-- HZ ICache config expiry policy --");
+
+        try (CachingProvider provider = Caching.getCachingProvider()) {
+            CacheManager cacheManager = provider.getCacheManager();
+            MutableConfiguration<String, Integer> configuration = new MutableConfiguration<String, Integer>()
+                    .setTypes(String.class, Integer.class)
+                    .setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(new Duration(SECONDS, 5)));
+            Cache<String, Integer> cache = cacheManager.createCache("cache2", configuration);
+
+            @SuppressWarnings("unchecked")
+            ICache<String, Integer> iCache = cache.unwrap(ICache.class);
+
+            String monday = "Monday";
+            logger.debug("add key: {} and sleep ...", monday);
+            iCache.put(monday, 1);
+            TimeUnit.SECONDS.sleep(2);
+            logger.debug("contains key: {}={}", monday, iCache.containsKey(monday));
+
+            String tuesday = "Tuesday";
+            logger.debug("add key: {} and sleep ...", tuesday);
+            iCache.put(tuesday, 1);
+            TimeUnit.SECONDS.sleep(5);
+            logger.debug("contains key: {}={}", tuesday, iCache.containsKey(tuesday));
+
+
+        } catch (InterruptedException e) {
+            logger.debug("Error", e);
+        }
+    }
+
+    private static void useICacheKeyExpiryPolicy() {
+        logger.info("-- HZ ICache key expiry policy --");
 
         try (CachingProvider provider = Caching.getCachingProvider()) {
             CacheManager cacheManager = provider.getCacheManager();
@@ -217,9 +253,6 @@ public class Chapter11 {
     private static void simpleCachingProvider() {
         logger.info("-- HZ simple JCache --");
 
-//        try (CachingProvider provider = Caching.getCachingProvider("com.hazelcast.client.cache.impl.HazelcastClientCachingProvider")) {
-//        try (CachingProvider provider = Caching.getCachingProvider("com.hazelcast.cache.impl.HazelcastServerCachingProvider")) {
-//        try (CachingProvider provider = Caching.getCachingProvider("com.hazelcast.cache.HazelcastCachingProvider")) {
         try (CachingProvider provider = Caching.getCachingProvider()) {
             CacheManager cacheManager = provider.getCacheManager();
             Cache<String, Integer> cache = cacheManager.getCache("cache", String.class, Integer.class);
@@ -240,6 +273,62 @@ public class Chapter11 {
             cache.forEach(e -> temp.put(e.getKey(), e.getValue()));
             logger.debug("cache after: {}", temp);
             logger.debug("cache friday: {}", cache.get("Friday"));
+        }
+    }
+
+    private static void serverProviderCacheManager() {
+        logger.info("-- HZ ICache server provider --");
+
+        try (CachingProvider provider = Caching.getCachingProvider("com.hazelcast.cache.impl.HazelcastServerCachingProvider")) {
+            CacheManager cacheManager = provider.getCacheManager();
+            Cache<String, Integer> cache = cacheManager.getCache("cache", String.class, Integer.class);
+
+            cache.putAll(store);
+            logger.debug("key Monday: {}", cache.get("Monday"));
+        }
+    }
+
+    private static void clientProviderCacheManager() {
+        logger.info("-- HZ ICache client provider --");
+
+        try (CachingProvider provider = Caching.getCachingProvider()) {
+            CacheManager cacheManager = provider.getCacheManager();
+            Cache<String, Integer> cache = cacheManager.getCache("cache", String.class, Integer.class);
+
+            cache.putAll(store);
+            logger.debug("key Monday: {}", cache.get("Monday"));
+        }
+
+        try (CachingProvider provider = Caching.getCachingProvider("com.hazelcast.client.cache.impl.HazelcastClientCachingProvider")) {
+            CacheManager cacheManager = provider.getCacheManager();
+            Cache<String, Integer> cache = cacheManager.getCache("cache", String.class, Integer.class);
+
+            cache.putAll(store);
+            logger.debug("key Tuesday: {}", cache.get("Tuesday"));
+        }
+
+        try (CachingProvider provider = Caching.getCachingProvider("com.hazelcast.cache.HazelcastCachingProvider")) {
+            CacheManager cacheManager = provider.getCacheManager();
+            Cache<String, Integer> cache = cacheManager.getCache("cache", String.class, Integer.class);
+
+            cache.putAll(store);
+            logger.debug("key Wednesday: {}", cache.get("Wednesday"));
+        }
+    }
+
+    private static void customHzCacheManager() {
+        logger.info("-- HZ ICache custom hz cache manager --");
+
+        Properties properties = new Properties();
+        properties.setProperty(HazelcastCachingProvider.HAZELCAST_CONFIG_LOCATION, "classpath:hazelcast-client.xml");
+        try (CachingProvider provider = Caching.getCachingProvider()) {
+            CacheManager cacheManager = provider.getCacheManager(new URI("custom_cache_manager"), null, properties);
+            Cache<String, Integer> cache = cacheManager.getCache("cache", String.class, Integer.class);
+
+            cache.putAll(store);
+            logger.debug("key Monday: {}", cache.get("Monday"));
+        } catch (Exception e) {
+            logger.debug("Error", e);
         }
     }
 
