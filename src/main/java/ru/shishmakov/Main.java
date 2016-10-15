@@ -4,7 +4,7 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.shishmakov.ch.Chapter11;
+import ru.shishmakov.ch.Chapter11_JCacheProvider;
 
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.ExecutorService;
@@ -28,16 +28,16 @@ public class Main {
         HazelcastInstance hz2 = buildHZInstance();
 
         try {
-//            Chapter2.doExamples(hz1, hz2);
-//            Chapter3.doExamples(hz1, hz2, service);
-//            Chapter4.doExamples(hz1, hz2, service);
-//            Chapter5.doExamples(hz1, hz2, service);
-//            Chapter6.doExamples(hz1, hz2, service);
-//            Chapter7.doExamples(hz1, hz2, service);
-//            Chapter8.doExamples(hz1, hz2, service);
-//            Chapter9.doExamples(hz1, hz2);
-//            Chapter10.doExamples(hz1, hz2);
-            Chapter11.doExamples(hz1, hz2);
+//            Chapter2_LearningTheBasics.doExamples(hz1, hz2);
+//            Chapter3_DistributedPrimitives.doExamples(hz1, hz2, service);
+//            Chapter4_DistributedCollections.doExamples(hz1, hz2, service);
+//            Chapter5_DistributedMap.doExamples(hz1, hz2, service);
+//            Chapter6_DistributedExecutorService.doExamples(hz1, hz2, service);
+//            Chapter7_DistributedTopic.doExamples(hz1, hz2, service);
+//            Chapter8_HazelcastClients.doExamples(hz1, hz2, service);
+//            Chapter9_Serialization.doExamples(hz1, hz2);
+//            Chapter10_Transactions.doExamples(hz1, hz2);
+            Chapter11_JCacheProvider.doExamples(hz1, hz2);
         } finally {
             service.shutdownNow();
             service.awaitTermination(15, TimeUnit.SECONDS);

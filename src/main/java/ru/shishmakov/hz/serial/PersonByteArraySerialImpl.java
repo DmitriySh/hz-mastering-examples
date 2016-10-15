@@ -3,7 +3,7 @@ package ru.shishmakov.hz.serial;
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.shishmakov.ch.Chapter9.PersonByteArraySerial;
+import ru.shishmakov.ch.Chapter9_Serialization.PersonByteArraySerial;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;

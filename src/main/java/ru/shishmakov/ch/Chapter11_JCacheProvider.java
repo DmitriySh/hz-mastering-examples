@@ -37,7 +37,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 /**
  * @author Dmitriy Shishmakov on 20.09.16
  */
-public class Chapter11 {
+public class Chapter11_JCacheProvider {
 
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 

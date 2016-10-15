@@ -140,17 +140,17 @@
         </portable-factories>
 
         <serializers>
-            <serializer type-class="ru.shishmakov.ch.Chapter9$PersonStreamSerial"
+            <serializer type-class="ru.shishmakov.ch.Chapter9_Serialization$PersonStreamSerial"
                         class-name="ru.shishmakov.hz.serial.PersonStreamSerialImpl"/>
-            <serializer type-class="ru.shishmakov.ch.Chapter9$PersonStreamSerial2"
+            <serializer type-class="ru.shishmakov.ch.Chapter9_Serialization$PersonStreamSerial2"
                         class-name="ru.shishmakov.hz.serial.PersonStreamSerial2Impl"/>
-            <serializer type-class="ru.shishmakov.ch.Chapter9$PersonStreamSerial3"
+            <serializer type-class="ru.shishmakov.ch.Chapter9_Serialization$PersonStreamSerial3"
                         class-name="ru.shishmakov.hz.serial.PersonStreamSerial3Impl"/>
-            <serializer type-class="ru.shishmakov.ch.Chapter9$MapStreamSerial"
+            <serializer type-class="ru.shishmakov.ch.Chapter9_Serialization$MapStreamSerial"
                         class-name="ru.shishmakov.hz.serial.MapStreamSerialImpl"/>
-            <serializer type-class="ru.shishmakov.ch.Chapter9$KryoPersonStreamSerial"
+            <serializer type-class="ru.shishmakov.ch.Chapter9_Serialization$KryoPersonStreamSerial"
                         class-name="ru.shishmakov.hz.serial.KryoPersonStreamSerialImpl"/>
-            <serializer type-class="ru.shishmakov.ch.Chapter9$PersonByteArraySerial"
+            <serializer type-class="ru.shishmakov.ch.Chapter9_Serialization$PersonByteArraySerial"
                         class-name="ru.shishmakov.hz.serial.PersonByteArraySerialImpl"/>
 
             <global-serializer override-java-serialization="false">
@@ -168,8 +168,8 @@
         <statistics-enabled>true</statistics-enabled>
         <management-enabled>false</management-enabled>
 
-        <cache-loader-factory class-name="ru.shishmakov.ch.Chapter11$XmlStoreCacheLoader"/>
-        <cache-writer-factory class-name="ru.shishmakov.ch.Chapter11$XmlStoreCacheWriter"/>
+        <cache-loader-factory class-name="ru.shishmakov.ch.Chapter11_JCacheProvider$XmlStoreCacheLoader"/>
+        <cache-writer-factory class-name="ru.shishmakov.ch.Chapter11_JCacheProvider$XmlStoreCacheWriter"/>
 
         <backup-count>1</backup-count>
         <async-backup-count>0</async-backup-count>
@@ -189,7 +189,8 @@
 
         <cache-entry-listeners>
             <cache-entry-listener synchronous="false">
-                <cache-entry-listener-factory class-name="ru.shishmakov.ch.Chapter11$CacheEntryListenerFactory"/>
+                <cache-entry-listener-factory
+                        class-name="ru.shishmakov.ch.Chapter11_JCacheProvider$CacheEntryListenerFactory"/>
             </cache-entry-listener>
         </cache-entry-listeners>
 

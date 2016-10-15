@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 /**
  * @author Dmitriy Shishmakov
  */
-public class Chapter10 {
+public class Chapter10_Transactions {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public static void doExamples(HazelcastInstance hz1, HazelcastInstance hz2) {

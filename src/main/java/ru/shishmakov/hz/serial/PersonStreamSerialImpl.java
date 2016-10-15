@@ -5,7 +5,7 @@ import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.shishmakov.ch.Chapter9.PersonStreamSerial;
+import ru.shishmakov.ch.Chapter9_Serialization.PersonStreamSerial;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;

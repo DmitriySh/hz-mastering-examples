@@ -32,7 +32,7 @@ import static java.time.Month.*;
 /**
  * @author Dmitriy Shishmakov
  */
-public class Chapter5 {
+public class Chapter5_DistributedMap {
 
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -43,6 +43,8 @@ public class Chapter5 {
     public static final String SHISHMAKOV = "Shishmakov";
 
     public static void doExamples(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+        logger.debug("-- Chapter 5. Distributed Map --");
+
 //        mapGetCopy(hz1, hz2);
 //        mapMemoryFormat(hz1, hz2);
 //        mapPartitionAware(hz1, hz2);

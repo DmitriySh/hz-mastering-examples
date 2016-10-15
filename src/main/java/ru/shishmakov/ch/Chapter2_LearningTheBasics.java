@@ -12,11 +12,13 @@ import java.lang.invoke.MethodHandles;
 /**
  * @author Dmitriy Shishmakov
  */
-public class Chapter2 {
+public class Chapter2_LearningTheBasics {
 
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     static void doExampels(HazelcastInstance hz1, HazelcastInstance hz2) {
+        logger.debug("-- Chapter 2. Learning The Basics --");
+
         IMap<String, Number> map1 = hz1.getMap("testmap1");
         IMap<String, Number> map2Node1 = hz1.getMap("testmap2");
         IMap<String, Number> map2Node2 = hz2.getMap("testmap2");

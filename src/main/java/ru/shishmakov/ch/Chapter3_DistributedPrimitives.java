@@ -16,11 +16,13 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Dmitriy Shishmakov
  */
-public class Chapter3 {
+public class Chapter3_DistributedPrimitives {
 
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public static void doExampels(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+        logger.debug("-- Chapter 3. Distributed Primitives --");
+
         atomicLong(hz1);
         generator(hz1, hz2);
         atomicReference(hz2);

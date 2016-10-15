@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 /**
  * @author Dmitriy Shishmakov
  */
-public class Chapter7 {
+public class Chapter7_DistributedTopic {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final String RELIABLE_TOPIC = "reliableTopic";
@@ -29,6 +29,8 @@ public class Chapter7 {
     private static final String SUBSCRIBER = "subscriber";
 
     public static void doExamples(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+        logger.debug("-- Chapter 7. Distributed Topic --");
+
 //        topicPublishMultipleSubscribes(hz1, hz2);
 //        reliableTopicPublishSubscribe(hz1, hz2);
         topicStripedExecutor(hz1, hz2);

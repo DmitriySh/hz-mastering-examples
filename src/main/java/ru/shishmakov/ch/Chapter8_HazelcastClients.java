@@ -24,12 +24,13 @@ import static ru.shishmakov.hz.cfg.HzClusterConfig.buildHZInstance;
 /**
  * @author Dmitriy Shishmakov
  */
-public class Chapter8 {
+public class Chapter8_HazelcastClients {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final Integer POISON_PILL = -1;
 
     public static void doExamples(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+        logger.debug("-- Chapter 8. Hazelcast Clients --");
 
         try {
 //        clientConnectToCluster(hz1, hz2);

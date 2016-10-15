@@ -29,10 +29,12 @@ import static ru.shishmakov.hz.serial.SerializerIds.*;
 /**
  * @author Dmitriy Shishmakov
  */
-public class Chapter9 {
+public class Chapter9_Serialization {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public static void doExamples(HazelcastInstance hz1, HazelcastInstance hz2) {
+        logger.debug("-- Chapter 9. Serialization --");
+
 //        useSerialization(hz1, hz2);
 //        useExternalization(hz1, hz2);
 //        useDataSerializable(hz1, hz2);
@@ -146,7 +148,7 @@ public class Chapter9 {
 
     private static void fillSerializationConfig(SerializationConfig serialCfg) {
         try {
-            String packageName = Chapter9.class.getPackage().getName();
+            String packageName = Chapter9_Serialization.class.getPackage().getName();
             ClassPath cp = ClassPath.from(Thread.currentThread().getContextClassLoader());
             Set<Class<?>> classes = cp.getAllClasses().stream()
                     .filter(cl -> cl.getName().contains("$"))

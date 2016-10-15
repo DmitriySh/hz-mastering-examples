@@ -3,7 +3,7 @@ package ru.shishmakov.hz;
 import com.hazelcast.core.MapStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.shishmakov.ch.Chapter5;
+import ru.shishmakov.ch.Chapter5_DistributedMap;
 
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
@@ -12,24 +12,24 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static ru.shishmakov.ch.Chapter5.*;
+import static ru.shishmakov.ch.Chapter5_DistributedMap.*;
 
 /**
  * @author Dmitriy Shishmakov
  */
-public class EmployeeMapStrore implements MapStore<String, Chapter5.Employee2>, Serializable {
+public class EmployeeMapStrore implements MapStore<String, Chapter5_DistributedMap.Employee2>, Serializable {
 
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
 
     @Override
-    public void store(String key, Chapter5.Employee2 value) {
+    public void store(String key, Chapter5_DistributedMap.Employee2 value) {
         logger.debug("store key: {}", key);
     }
 
     @Override
-    public void storeAll(Map<String, Chapter5.Employee2> map) {
+    public void storeAll(Map<String, Chapter5_DistributedMap.Employee2> map) {
         logger.debug("store all");
         map.forEach(this::store);
     }
@@ -46,13 +46,13 @@ public class EmployeeMapStrore implements MapStore<String, Chapter5.Employee2>, 
     }
 
     @Override
-    public Chapter5.Employee2 load(String key) {
+    public Chapter5_DistributedMap.Employee2 load(String key) {
         logger.debug("load key: {}", key);
-        return new Chapter5.Employee2(key, SHISHMAKOV);
+        return new Chapter5_DistributedMap.Employee2(key, SHISHMAKOV);
     }
 
     @Override
-    public Map<String, Chapter5.Employee2> loadAll(Collection<String> keys) {
+    public Map<String, Chapter5_DistributedMap.Employee2> loadAll(Collection<String> keys) {
         logger.debug("loadAll keys: {}", keys);
         Map<String, Employee2> map = new HashMap<>();
         keys.forEach(k -> map.put(k, new Employee2(k, SHISHMAKOV)));

@@ -17,13 +17,14 @@ import java.util.concurrent.ExecutorService;
 /**
  * @author Dmitriy Shishmakov
  */
-public class Chapter4 {
+public class Chapter4_DistributedCollections {
 
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final int POISON_PILL = -1;
 
     public static void doExampels(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+        logger.debug("-- Chapter 4. Distributed Collections --");
 
         iQueue(hz1, service);
         iListAndISet(hz1, hz2);

@@ -16,11 +16,13 @@ import static ru.shishmakov.hz.cfg.HzClusterConfig.buildHZInstance;
 /**
  * @author Dmitriy Shishmakov
  */
-public class Chapter6 {
+public class Chapter6_DistributedExecutorService {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
     public static void doExamples(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+        logger.debug("-- Chapter 6. Distributed Executor Service --");
+
 //        jucSimpleExecutor(service);
 //        hzSimpleExecutor(hz1, hz2);
 //        executorOnMembers(hz1, hz2);
