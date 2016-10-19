@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 import static java.time.Month.*;
+import static ru.shishmakov.hz.cfg.HzClusterConfig.buildHZInstance;
 
 /**
  * @author Dmitriy Shishmakov
@@ -42,8 +43,11 @@ public class Chapter5_DistributedMap {
     public static final String GALYA = "Galya";
     public static final String SHISHMAKOV = "Shishmakov";
 
-    public static void doExamples(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+    public static void doExamples(ExecutorService service) {
         logger.debug("-- Chapter 5. Distributed Map --");
+
+        HazelcastInstance hz1 = buildHZInstance();
+        HazelcastInstance hz2 = buildHZInstance();
 
 //        mapGetCopy(hz1, hz2);
 //        mapMemoryFormat(hz1, hz2);

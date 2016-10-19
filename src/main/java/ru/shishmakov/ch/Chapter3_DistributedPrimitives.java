@@ -13,6 +13,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static ru.shishmakov.hz.cfg.HzClusterConfig.buildHZInstance;
+
 /**
  * @author Dmitriy Shishmakov
  */
@@ -20,8 +22,11 @@ public class Chapter3_DistributedPrimitives {
 
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public static void doExampels(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+    public static void doExamples(ExecutorService service) {
         logger.debug("-- Chapter 3. Distributed Primitives --");
+
+        HazelcastInstance hz1 = buildHZInstance();
+        HazelcastInstance hz2 = buildHZInstance();
 
         atomicLong(hz1);
         generator(hz1, hz2);

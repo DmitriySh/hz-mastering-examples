@@ -16,14 +16,19 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import static ru.shishmakov.hz.cfg.HzClusterConfig.buildHZInstance;
+
 /**
  * @author Dmitriy Shishmakov
  */
 public class Chapter10_Transactions {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public static void doExamples(HazelcastInstance hz1, HazelcastInstance hz2) {
+    public static void doExamples() {
         logger.debug("-- Chapter 10. Transactions --");
+
+        HazelcastInstance hz1 = buildHZInstance();
+        HazelcastInstance hz2 = buildHZInstance();
 
 //        simpleTransactionContext(hz1, hz2);
 //        useTimeoutTransactionOptions(hz1, hz2);

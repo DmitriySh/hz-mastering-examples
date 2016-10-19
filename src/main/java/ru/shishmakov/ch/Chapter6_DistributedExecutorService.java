@@ -20,8 +20,11 @@ public class Chapter6_DistributedExecutorService {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
-    public static void doExamples(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+    public static void doExamples(ExecutorService service) {
         logger.debug("-- Chapter 6. Distributed Executor Service --");
+
+        HazelcastInstance hz1 = buildHZInstance();
+        HazelcastInstance hz2 = buildHZInstance();
 
 //        jucSimpleExecutor(service);
 //        hzSimpleExecutor(hz1, hz2);

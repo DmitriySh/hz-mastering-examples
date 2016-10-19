@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 
+import static ru.shishmakov.hz.cfg.HzClusterConfig.buildHZInstance;
+
 /**
  * @author Dmitriy Shishmakov
  */
@@ -16,8 +18,11 @@ public class Chapter2_LearningTheBasics {
 
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    static void doExampels(HazelcastInstance hz1, HazelcastInstance hz2) {
+    public static void doExamples() {
         logger.debug("-- Chapter 2. Learning The Basics --");
+
+        HazelcastInstance hz1 = buildHZInstance();
+        HazelcastInstance hz2 = buildHZInstance();
 
         IMap<String, Number> map1 = hz1.getMap("testmap1");
         IMap<String, Number> map2Node1 = hz1.getMap("testmap2");

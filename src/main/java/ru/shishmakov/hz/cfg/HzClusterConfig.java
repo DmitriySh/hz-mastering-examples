@@ -24,12 +24,22 @@ public class HzClusterConfig {
 
     public static HazelcastInstance buildHZInstance() {
         logger.debug("Load HZ instance ...");
-//        return loadFromClassPath();
-        return loadFromFileDirectly();
-//        return loadFromProgrammatically();
+//        return buildFromClassPath();
+        return buildFromFileDirectly();
+//        return buildFromProgrammatically();
     }
 
-    private static HazelcastInstance loadFromProgrammatically() {
+    public static HazelcastInstance buildFromFileDirectly(String path) {
+        logger.debug("Load HZ instance: {} ...", path);
+        try {
+            Config config = new FileSystemXmlConfig(path);
+            return Hazelcast.newHazelcastInstance(config);
+        } catch (FileNotFoundException e) {
+            throw new IllegalStateException("Could not load config file", e);
+        }
+    }
+
+    public static HazelcastInstance buildFromProgrammatically() {
         Config config = buildClusterConfig();
         return Hazelcast.newHazelcastInstance(config);
     }
@@ -47,11 +57,11 @@ public class HzClusterConfig {
         return config;
     }
 
-    private static HazelcastInstance loadFromClassPath() {
+    private static HazelcastInstance buildFromClassPath() {
         return Hazelcast.newHazelcastInstance();
     }
 
-    private static HazelcastInstance loadFromFileDirectly() {
+    private static HazelcastInstance buildFromFileDirectly() {
         try {
 //            Config config = new ClasspathXmlConfig("hazelcast.xml");
             Config config = new FileSystemXmlConfig("src/main/resources/hazelcast.xml");

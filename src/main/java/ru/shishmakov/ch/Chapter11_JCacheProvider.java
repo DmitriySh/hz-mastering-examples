@@ -33,6 +33,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static ru.shishmakov.hz.cfg.HzClusterConfig.buildHZInstance;
 
 /**
  * @author Dmitriy Shishmakov on 20.09.16
@@ -53,8 +54,11 @@ public class Chapter11_JCacheProvider {
         store.put("Sunday", 7);
     }
 
-    public static void doExamples(HazelcastInstance hz1, HazelcastInstance hz2) {
+    public static void doExamples() {
         logger.info("-- Chapter 11. JCache Provider --");
+
+        HazelcastInstance hz1 = buildHZInstance();
+        HazelcastInstance hz2 = buildHZInstance();
 
 //        customHzCacheManager();
 //        clientProviderCacheManager();

@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
+import static ru.shishmakov.hz.cfg.HzClusterConfig.buildHZInstance;
+
 /**
  * @author Dmitriy Shishmakov
  */
@@ -23,14 +25,16 @@ public class Chapter4_DistributedCollections {
 
     private static final int POISON_PILL = -1;
 
-    public static void doExampels(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+    public static void doExamples(ExecutorService service) {
         logger.debug("-- Chapter 4. Distributed Collections --");
 
-        iQueue(hz1, service);
-        iListAndISet(hz1, hz2);
-        ringBuffer1(hz1);
-        ringBuffer2(hz1);
+        HazelcastInstance hz1 = buildHZInstance();
+        HazelcastInstance hz2 = buildHZInstance();
 
+//        iQueue(hz1, service);
+//        iListAndISet(hz1, hz2);
+//        ringBuffer1(hz1);
+        ringBuffer2(hz1);
     }
 
     private static void iQueue(HazelcastInstance hz1, ExecutorService service) {

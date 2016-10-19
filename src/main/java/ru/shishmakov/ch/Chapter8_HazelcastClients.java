@@ -12,7 +12,6 @@ import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -29,8 +28,11 @@ public class Chapter8_HazelcastClients {
 
     private static final Integer POISON_PILL = -1;
 
-    public static void doExamples(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+    public static void doExamples() {
         logger.debug("-- Chapter 8. Hazelcast Clients --");
+
+        HazelcastInstance hz1 = buildHZInstance();
+        HazelcastInstance hz2 = buildHZInstance();
 
         try {
 //        clientConnectToCluster(hz1, hz2);

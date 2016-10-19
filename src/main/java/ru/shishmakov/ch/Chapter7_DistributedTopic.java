@@ -17,6 +17,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static ru.shishmakov.hz.cfg.HzClusterConfig.buildHZInstance;
+
 /**
  * @author Dmitriy Shishmakov
  */
@@ -28,8 +30,11 @@ public class Chapter7_DistributedTopic {
     private static final String RECEIVER = "receiver";
     private static final String SUBSCRIBER = "subscriber";
 
-    public static void doExamples(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+    public static void doExamples(ExecutorService service) {
         logger.debug("-- Chapter 7. Distributed Topic --");
+
+        HazelcastInstance hz1 = buildHZInstance();
+        HazelcastInstance hz2 = buildHZInstance();
 
 //        topicPublishMultipleSubscribes(hz1, hz2);
 //        reliableTopicPublishSubscribe(hz1, hz2);

@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 import static ru.shishmakov.hz.cfg.HzClusterConfig.buildClusterConfig;
+import static ru.shishmakov.hz.cfg.HzClusterConfig.buildHZInstance;
 import static ru.shishmakov.hz.serial.PortableSerializableImpl.*;
 import static ru.shishmakov.hz.serial.SerializerIds.*;
 
@@ -32,8 +33,11 @@ import static ru.shishmakov.hz.serial.SerializerIds.*;
 public class Chapter9_Serialization {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public static void doExamples(HazelcastInstance hz1, HazelcastInstance hz2) {
+    public static void doExamples() {
         logger.debug("-- Chapter 9. Serialization --");
+
+        HazelcastInstance hz1 = buildHZInstance();
+        HazelcastInstance hz2 = buildHZInstance();
 
 //        useSerialization(hz1, hz2);
 //        useExternalization(hz1, hz2);
