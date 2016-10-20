@@ -17,7 +17,7 @@
     </properties>
 
     <services>
-        <service>
+        <service enabled="true">
             <name>CounterService</name>
             <class-name>ru.shishmakov.hz.spi.CounterService</class-name>
             <properties>
