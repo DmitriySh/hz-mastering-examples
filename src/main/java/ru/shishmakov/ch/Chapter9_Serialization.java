@@ -14,7 +14,7 @@ import com.hazelcast.nio.serialization.*;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.shishmakov.hz.serial.KryoSmartStreamSerialImpl;
+import ru.shishmakov.hz.serialization.KryoSmartStreamSerialImpl;
 
 import java.io.*;
 import java.lang.invoke.MethodHandles;
@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 import static ru.shishmakov.hz.cfg.HzClusterConfig.buildClusterConfig;
 import static ru.shishmakov.hz.cfg.HzClusterConfig.buildHZInstance;
-import static ru.shishmakov.hz.serial.PortableSerializableImpl.*;
-import static ru.shishmakov.hz.serial.SerializerIds.*;
+import static ru.shishmakov.hz.serialization.PortableSerializableImpl.*;
+import static ru.shishmakov.hz.serialization.SerializerIds.*;
 
 /**
  * @author Dmitriy Shishmakov

@@ -131,30 +131,31 @@
 
     <serialization>
         <data-serializable-factories>
-            <data-serializable-factory factory-id="100">ru.shishmakov.hz.serial.DataSerializableImpl
+            <data-serializable-factory factory-id="100">ru.shishmakov.hz.serialization.DataSerializableImpl
             </data-serializable-factory>
         </data-serializable-factories>
 
         <portable-factories>
-            <portable-factory factory-id="200">ru.shishmakov.hz.serial.PortableSerializableImpl</portable-factory>
+            <portable-factory factory-id="200">ru.shishmakov.hz.serialization.PortableSerializableImpl
+            </portable-factory>
         </portable-factories>
 
         <serializers>
             <serializer type-class="ru.shishmakov.ch.Chapter9_Serialization$PersonStreamSerial"
-                        class-name="ru.shishmakov.hz.serial.PersonStreamSerialImpl"/>
+                        class-name="ru.shishmakov.hz.serialization.PersonStreamSerialImpl"/>
             <serializer type-class="ru.shishmakov.ch.Chapter9_Serialization$PersonStreamSerial2"
-                        class-name="ru.shishmakov.hz.serial.PersonStreamSerial2Impl"/>
+                        class-name="ru.shishmakov.hz.serialization.PersonStreamSerial2Impl"/>
             <serializer type-class="ru.shishmakov.ch.Chapter9_Serialization$PersonStreamSerial3"
-                        class-name="ru.shishmakov.hz.serial.PersonStreamSerial3Impl"/>
+                        class-name="ru.shishmakov.hz.serialization.PersonStreamSerial3Impl"/>
             <serializer type-class="ru.shishmakov.ch.Chapter9_Serialization$MapStreamSerial"
-                        class-name="ru.shishmakov.hz.serial.MapStreamSerialImpl"/>
+                        class-name="ru.shishmakov.hz.serialization.MapStreamSerialImpl"/>
             <serializer type-class="ru.shishmakov.ch.Chapter9_Serialization$KryoPersonStreamSerial"
-                        class-name="ru.shishmakov.hz.serial.KryoPersonStreamSerialImpl"/>
+                        class-name="ru.shishmakov.hz.serialization.KryoPersonStreamSerialImpl"/>
             <serializer type-class="ru.shishmakov.ch.Chapter9_Serialization$PersonByteArraySerial"
-                        class-name="ru.shishmakov.hz.serial.PersonByteArraySerialImpl"/>
+                        class-name="ru.shishmakov.hz.serialization.PersonByteArraySerialImpl"/>
 
             <global-serializer override-java-serialization="false">
-                ru.shishmakov.hz.serial.PersonByteArraySerial2Impl
+                ru.shishmakov.hz.serialization.PersonByteArraySerial2Impl
             </global-serializer>
         </serializers>
     </serialization>

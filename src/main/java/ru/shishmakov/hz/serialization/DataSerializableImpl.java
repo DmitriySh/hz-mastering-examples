@@ -1,11 +1,11 @@
-package ru.shishmakov.hz.serial;
+package ru.shishmakov.hz.serialization;
 
 import com.hazelcast.nio.serialization.DataSerializableFactory;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import ru.shishmakov.ch.Chapter9_Serialization;
 
-import static ru.shishmakov.hz.serial.SerializerIds.DATA_SERIAL_ID_1;
-import static ru.shishmakov.hz.serial.SerializerIds.DATA_SERIAL_ID_2;
+import static ru.shishmakov.hz.serialization.SerializerIds.DATA_SERIAL_ID_1;
+import static ru.shishmakov.hz.serialization.SerializerIds.DATA_SERIAL_ID_2;
 
 /**
  * @author Dmitriy Shishmakov

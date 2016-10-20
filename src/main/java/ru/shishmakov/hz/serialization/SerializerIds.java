@@ -1,4 +1,4 @@
-package ru.shishmakov.hz.serial;
+package ru.shishmakov.hz.serialization;
 
 /**
  * @author Dmitriy Shishmakov

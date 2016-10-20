@@ -1,4 +1,4 @@
-package ru.shishmakov.hz.serial;
+package ru.shishmakov.hz.serialization;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkState;
-import static ru.shishmakov.hz.serial.SerializerIds.SMART_KRYO_SERIALIZER;
+import static ru.shishmakov.hz.serialization.SerializerIds.SMART_KRYO_SERIALIZER;
 
 /**
  * @author Dmitriy Shishmakov

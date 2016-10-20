@@ -1,4 +1,4 @@
-package ru.shishmakov.hz.serial;
+package ru.shishmakov.hz.serialization;
 
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 import org.slf4j.Logger;
@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 
-import static ru.shishmakov.hz.serial.SerializerIds.PERSON_BYTE_ARRAY_SERIALIZER;
+import static ru.shishmakov.hz.serialization.SerializerIds.PERSON_BYTE_ARRAY_SERIALIZER;
 
 /**
  * @author Dmitriy Shishmakov

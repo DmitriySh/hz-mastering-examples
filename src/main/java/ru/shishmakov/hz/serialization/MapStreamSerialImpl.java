@@ -1,4 +1,4 @@
-package ru.shishmakov.hz.serial;
+package ru.shishmakov.hz.serialization;
 
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
