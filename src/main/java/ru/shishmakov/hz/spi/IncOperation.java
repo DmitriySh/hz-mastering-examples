@@ -20,6 +20,10 @@ class IncOperation extends AbstractOperation implements PartitionAwareOperation 
     private int amount;
     private int value;
 
+    public IncOperation() {
+        /* need to be */
+    }
+
     IncOperation(String objectId, int amount) {
         this.objectId = objectId;
         this.amount = amount;
@@ -27,8 +31,8 @@ class IncOperation extends AbstractOperation implements PartitionAwareOperation 
 
     @Override
     public void run() throws Exception {
-        logger.debug("Execute increment on: {}, address: {}", objectId, getNodeEngine().getThisAddress());
         value = 0;
+        logger.debug("Execute increment on: {}, value: {}, address: {}", objectId, value, getNodeEngine().getThisAddress());
     }
 
     @Override

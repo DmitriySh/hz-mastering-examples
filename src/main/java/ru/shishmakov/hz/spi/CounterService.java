@@ -17,14 +17,13 @@ public class CounterService implements ManagedService, RemoteService {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public static final String NAME = "CounterService";
-    private static final String CLASS_NAME = CounterService.class.getSimpleName();
+    static final String CLASS_NAME = CounterService.class.getSimpleName();
 
     private NodeEngine nodeEngine;
     private Properties properties;
 
     public CounterService() {
         /* need to be */
-        System.out.println("CounterService");
     }
 
     /**
@@ -35,7 +34,7 @@ public class CounterService implements ManagedService, RemoteService {
         this.nodeEngine = nodeEngine;
         this.properties = properties;
         System.out.println("{} init");
-        logger.debug("{} init", CLASS_NAME);
+        logger.debug("{} init", CounterService.CLASS_NAME);
     }
 
     /**
@@ -43,7 +42,7 @@ public class CounterService implements ManagedService, RemoteService {
      */
     @Override
     public void shutdown(boolean terminate) {
-        logger.debug("{} shutdown", CLASS_NAME);
+        logger.debug("{} shutdown", CounterService.CLASS_NAME);
     }
 
     /**
@@ -52,18 +51,18 @@ public class CounterService implements ManagedService, RemoteService {
     @Override
     public void reset() {
         /* not implement */
-        logger.debug("{} reset", CLASS_NAME);
+        logger.debug("{} reset", CounterService.CLASS_NAME);
     }
 
     @Override
     public DistributedObject createDistributedObject(String objectName) {
-        logger.debug("{} create proxy: {}", CLASS_NAME, CounterProxy.class.getSimpleName());
+        logger.debug("{} create proxy: {}", CounterService.CLASS_NAME, CounterProxy.CLASS_NAME);
         return new CounterProxy(objectName, nodeEngine, this);
     }
 
     @Override
     public void destroyDistributedObject(String objectName) {
         /* not implement */
-        logger.debug("{} destroy proxy", CLASS_NAME);
+        logger.debug("{} destroy proxy", CounterService.CLASS_NAME);
     }
 }

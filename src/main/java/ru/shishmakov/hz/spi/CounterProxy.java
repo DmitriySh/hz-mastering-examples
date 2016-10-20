@@ -17,6 +17,7 @@ import static ru.shishmakov.hz.spi.CounterService.NAME;
  */
 public class CounterProxy extends AbstractDistributedObject<CounterService> implements Counter {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    static final String CLASS_NAME = CounterProxy.class.getSimpleName();
 
     private final String objectId;
 
