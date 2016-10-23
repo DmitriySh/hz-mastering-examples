@@ -40,8 +40,13 @@ public class Chapter16_ExtendingHazelcast {
         logger.debug("Create {} instances of {} objects", counters.size(), NAME);
 
         counters.forEach(c -> c.increment(1));
-        logger.debug("Increment values for each DO", counters.size(), NAME);
+        logger.debug("1 step increment values for each DO", counters.size(), NAME);
+        counters.forEach(c -> c.increment(1));
+        logger.debug("2 step increment values for each DO", counters.size(), NAME);
+        counters.forEach(c -> c.increment(1));
+        logger.debug("3 step increment values for each DO", counters.size(), NAME);
 
+        logger.debug("Finish increment", counters.size(), NAME);
         try {
             Thread.sleep(3_000);
         } catch (InterruptedException e) {

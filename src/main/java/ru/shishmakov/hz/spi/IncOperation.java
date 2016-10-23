@@ -17,21 +17,24 @@ class IncOperation extends AbstractOperation implements PartitionAwareOperation 
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private String objectId;
-    private int amount;
+    private int delta;
     private int value;
 
     public IncOperation() {
         /* need to be */
     }
 
-    IncOperation(String objectId, int amount) {
+    IncOperation(String objectId, int delta) {
         this.objectId = objectId;
-        this.amount = amount;
+        this.delta = delta;
     }
 
     @Override
     public void run() throws Exception {
-        value = 0;
+        CounterService service = getService();
+        CounterContainer container = service.getContainerByPartitionId(getPartitionId());
+        container.increment(objectId, delta);
+        value = container.getCount(objectId);
         logger.debug("Execute increment on: {}, value: {}, address: {}", objectId, value, getNodeEngine().getThisAddress());
     }
 
@@ -49,13 +52,13 @@ class IncOperation extends AbstractOperation implements PartitionAwareOperation 
     protected void writeInternal(ObjectDataOutput out) throws IOException {
         super.writeInternal(out);
         out.writeUTF(objectId);
-        out.writeInt(amount);
+        out.writeInt(delta);
     }
 
     @Override
     protected void readInternal(ObjectDataInput in) throws IOException {
         super.readInternal(in);
         objectId = in.readUTF();
-        amount = in.readInt();
+        delta = in.readInt();
     }
 }

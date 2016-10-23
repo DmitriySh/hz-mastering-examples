@@ -37,10 +37,10 @@ public class CounterProxy extends AbstractDistributedObject<CounterService> impl
     }
 
     @Override
-    public int increment(int amount) {
+    public int increment(int delta) {
         NodeEngine engine = getNodeEngine();
         final int partitionId = engine.getPartitionService().getPartitionId(objectId);
-        IncOperation operation = new IncOperation(objectId, amount);
+        IncOperation operation = new IncOperation(objectId, delta);
 
         InvocationBuilder builder = engine.getOperationService().createInvocationBuilder(NAME, operation, partitionId);
         ICompletableFuture<Integer> future = builder.invoke();

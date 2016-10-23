@@ -1,5 +1,6 @@
 package ru.shishmakov.hz.spi;
 
+import com.google.common.collect.Range;
 import com.hazelcast.core.DistributedObject;
 import com.hazelcast.spi.ManagedService;
 import com.hazelcast.spi.NodeEngine;
@@ -10,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import java.util.Properties;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 /**
  * @author Dmitriy Shishmakov on 19.10.16
  */
@@ -18,6 +21,7 @@ public class CounterService implements ManagedService, RemoteService {
 
     public static final String NAME = "CounterService";
     static final String CLASS_NAME = CounterService.class.getSimpleName();
+    private CounterContainer[] containers = new CounterContainer[0];
 
     private NodeEngine nodeEngine;
     private Properties properties;
@@ -33,8 +37,12 @@ public class CounterService implements ManagedService, RemoteService {
     public void init(NodeEngine nodeEngine, Properties properties) {
         this.nodeEngine = nodeEngine;
         this.properties = properties;
+        CounterContainer[] containers = new CounterContainer[nodeEngine.getPartitionService().getPartitionCount()];
+        for (int i = 0; i < containers.length; i++) {
+            containers[i] = new CounterContainer();
+        }
+        this.containers = containers;
         System.out.println("{} init");
-        logger.debug("{} init", CounterService.CLASS_NAME);
     }
 
     /**
@@ -55,14 +63,24 @@ public class CounterService implements ManagedService, RemoteService {
     }
 
     @Override
-    public DistributedObject createDistributedObject(String objectName) {
+    public DistributedObject createDistributedObject(String objectId) {
+        int partitionId = nodeEngine.getPartitionService().getPartitionId(objectId);
+        CounterContainer container = containers[partitionId];
+        container.init(objectId);
         logger.debug("{} create proxy: {}", CounterService.CLASS_NAME, CounterProxy.CLASS_NAME);
-        return new CounterProxy(objectName, nodeEngine, this);
+        return new CounterProxy(objectId, nodeEngine, this);
     }
 
     @Override
-    public void destroyDistributedObject(String objectName) {
-        /* not implement */
+    public void destroyDistributedObject(String objectId) {
+        int partitionId = nodeEngine.getPartitionService().getPartitionId(objectId);
+        CounterContainer container = containers[partitionId];
+        container.destroy(objectId);
         logger.debug("{} destroy proxy", CounterService.CLASS_NAME);
+    }
+
+    public CounterContainer getContainerByPartitionId(int partitionId) {
+        checkArgument(Range.open(0, containers.length).contains(partitionId), "partitionId: %s is illegal");
+        return containers[partitionId];
     }
 }
