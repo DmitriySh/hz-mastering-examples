@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Container for every partition in the system. It will contain all counters and proxies for a given partition.
+ * <p/>
  * Hazelcast guarantees that within a single partition, only a single thread will be active.
  * So we don’t need to deal with concurrency control while accessing a container.
  *

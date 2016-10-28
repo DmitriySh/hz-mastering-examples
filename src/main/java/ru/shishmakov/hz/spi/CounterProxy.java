@@ -13,6 +13,9 @@ import java.lang.invoke.MethodHandles;
 import static ru.shishmakov.hz.spi.CounterService.NAME;
 
 /**
+ * Hazelcast does remote call through a Proxy - on the client side, you get a proxy that exposes your methods.
+ * It does not contain counter state; it is just a local representative of remote data/functionality.
+ *
  * @author Dmitriy Shishmakov on 19.10.16
  */
 public class CounterProxy extends AbstractDistributedObject<CounterService> implements Counter {
@@ -36,6 +39,12 @@ public class CounterProxy extends AbstractDistributedObject<CounterService> impl
         return objectId;
     }
 
+    /**
+     * Method is sending operations to the correct machine, executing the operation, and returning the results.
+     * Action needs to be invoked on the machine for hosting the partition that contains the real counter.
+     *
+     * @return new value
+     */
     @Override
     public int increment(int delta) {
         NodeEngine engine = getNodeEngine();

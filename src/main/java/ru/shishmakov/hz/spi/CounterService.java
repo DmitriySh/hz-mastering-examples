@@ -31,7 +31,7 @@ public class CounterService implements ManagedService, RemoteService {
     }
 
     /**
-     * CounterService is initialized
+     * CounterService is initialized for every partition
      */
     @Override
     public void init(NodeEngine nodeEngine, Properties properties) {
@@ -62,6 +62,12 @@ public class CounterService implements ManagedService, RemoteService {
         logger.debug("{} reset", CounterService.CLASS_NAME);
     }
 
+    /**
+     * Build a proxy is a local representation of (potentially) remote managed data and logic.
+     * It is important to realize that caching the proxy instance and removing the proxy instance is done outside of this service.
+     *
+     * @return proxy instance
+     */
     @Override
     public DistributedObject createDistributedObject(String objectId) {
         int partitionId = nodeEngine.getPartitionService().getPartitionId(objectId);
@@ -71,6 +77,9 @@ public class CounterService implements ManagedService, RemoteService {
         return new CounterProxy(objectId, nodeEngine, this);
     }
 
+    /**
+     * Clean up the value for the object has been removed.
+     */
     @Override
     public void destroyDistributedObject(String objectId) {
         int partitionId = nodeEngine.getPartitionService().getPartitionId(objectId);

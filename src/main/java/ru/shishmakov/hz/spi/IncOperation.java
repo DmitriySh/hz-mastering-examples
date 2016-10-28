@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
 /**
+ * Should be executed on the partition hosting of 'counter'.
+ *
  * @author Dmitriy Shishmakov on 19.10.16
  */
 class IncOperation extends AbstractOperation implements PartitionAwareOperation {
@@ -29,6 +31,9 @@ class IncOperation extends AbstractOperation implements PartitionAwareOperation 
         this.delta = delta;
     }
 
+    /**
+     * Responsible for the actual execution
+     */
     @Override
     public void run() throws Exception {
         CounterService service = getService();
@@ -38,16 +43,29 @@ class IncOperation extends AbstractOperation implements PartitionAwareOperation 
         logger.debug("Execute increment on: {}, value: {}, address: {}", objectId, value, getNodeEngine().getThisAddress());
     }
 
+    /**
+     * Each inc operation is going to return a response.
+     *
+     * @return true - synchronous mode notifies about availability new value;<br/>
+     * false - asynchronous mode notifies about not need to return a response
+     * (it is better to return false because that is faster)
+     */
     @Override
     public boolean returnsResponse() {
         return true;
     }
 
+    /**
+     * @return actual response value
+     */
     @Override
     public Object getResponse() {
         return value;
     }
 
+    /**
+     * Needs to be serialized
+     */
     @Override
     protected void writeInternal(ObjectDataOutput out) throws IOException {
         super.writeInternal(out);
@@ -55,6 +73,9 @@ class IncOperation extends AbstractOperation implements PartitionAwareOperation 
         out.writeInt(delta);
     }
 
+    /**
+     * Needs to be deserialized
+     */
     @Override
     protected void readInternal(ObjectDataInput in) throws IOException {
         super.readInternal(in);

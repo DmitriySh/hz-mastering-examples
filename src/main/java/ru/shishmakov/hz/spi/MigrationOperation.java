@@ -14,6 +14,9 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 /**
+ * During the execution of a migration, no other operations will be running in that partition.
+ * Therefore, you don’t need to deal with thread-safety.
+ *
  * @author Dmitriy Shishmakov on 24.10.16
  */
 public class MigrationOperation extends AbstractOperation {
