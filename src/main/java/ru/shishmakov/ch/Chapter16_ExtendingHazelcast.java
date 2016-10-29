@@ -37,7 +37,7 @@ public class Chapter16_ExtendingHazelcast {
         List<Counter> counters = IntStream.range(0, count)
                 .mapToObj(i -> hzs.get(i).<Counter>getDistributedObject("CounterService", "cs" + i))
                 .collect(Collectors.toList());
-        logger.debug("Create {} instances of {} objects", counters.size(), NAME);
+        logger.debug("Create {} distributed instances of {} objects", counters.size(), NAME);
 
         counters.forEach(c -> c.increment(1));
         logger.debug("1 step increment values for each DO", counters.size(), NAME);

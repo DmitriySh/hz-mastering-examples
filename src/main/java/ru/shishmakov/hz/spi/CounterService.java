@@ -20,7 +20,8 @@ public class CounterService implements ManagedService, RemoteService {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public static final String NAME = "CounterService";
-    static final String CLASS_NAME = CounterService.class.getSimpleName();
+    private static final String CLASS_NAME = CounterService.class.getSimpleName();
+
     private CounterContainer[] containers = new CounterContainer[0];
 
     private NodeEngine nodeEngine;
@@ -42,7 +43,7 @@ public class CounterService implements ManagedService, RemoteService {
             containers[i] = new CounterContainer();
         }
         this.containers = containers;
-        System.out.println("{} init");
+        logger.debug("Init {} with partitions CounterContainer[{}]", NAME, containers.length);
     }
 
     /**
@@ -70,7 +71,7 @@ public class CounterService implements ManagedService, RemoteService {
      */
     @Override
     public DistributedObject createDistributedObject(String objectId) {
-        int partitionId = nodeEngine.getPartitionService().getPartitionId(objectId);
+        final int partitionId = nodeEngine.getPartitionService().getPartitionId(objectId);
         CounterContainer container = containers[partitionId];
         container.init(objectId);
         logger.debug("{} create proxy: {}", CounterService.CLASS_NAME, CounterProxy.CLASS_NAME);
@@ -82,7 +83,7 @@ public class CounterService implements ManagedService, RemoteService {
      */
     @Override
     public void destroyDistributedObject(String objectId) {
-        int partitionId = nodeEngine.getPartitionService().getPartitionId(objectId);
+        final int partitionId = nodeEngine.getPartitionService().getPartitionId(objectId);
         CounterContainer container = containers[partitionId];
         container.destroy(objectId);
         logger.debug("{} destroy proxy", CounterService.CLASS_NAME);
