@@ -2,21 +2,23 @@ package ru.shishmakov.hz.spi;
 
 import com.google.common.collect.Range;
 import com.hazelcast.core.DistributedObject;
-import com.hazelcast.spi.ManagedService;
-import com.hazelcast.spi.NodeEngine;
-import com.hazelcast.spi.RemoteService;
+import com.hazelcast.partition.MigrationEndpoint;
+import com.hazelcast.spi.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Map;
 import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.BoundType.CLOSED;
+import static com.google.common.collect.BoundType.OPEN;
 
 /**
  * @author Dmitriy Shishmakov on 19.10.16
  */
-public class CounterService implements ManagedService, RemoteService {
+public class CounterService implements ManagedService, RemoteService, MigrationAwareService {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public static final String NAME = "CounterService";
@@ -72,7 +74,7 @@ public class CounterService implements ManagedService, RemoteService {
     @Override
     public DistributedObject createDistributedObject(String objectId) {
         final int partitionId = nodeEngine.getPartitionService().getPartitionId(objectId);
-        CounterContainer container = containers[partitionId];
+        CounterContainer container = getContainerByPartitionId(partitionId);
         container.init(objectId);
         logger.debug("{} create proxy: {}", CounterService.CLASS_NAME, CounterProxy.CLASS_NAME);
         return new CounterProxy(objectId, nodeEngine, this);
@@ -84,13 +86,58 @@ public class CounterService implements ManagedService, RemoteService {
     @Override
     public void destroyDistributedObject(String objectId) {
         final int partitionId = nodeEngine.getPartitionService().getPartitionId(objectId);
-        CounterContainer container = containers[partitionId];
+        CounterContainer container = getContainerByPartitionId(partitionId);
         container.destroy(objectId);
         logger.debug("{} destroy proxy", CounterService.CLASS_NAME);
     }
 
     public CounterContainer getContainerByPartitionId(int partitionId) {
-        checkArgument(Range.open(0, containers.length).contains(partitionId), "partitionId: %s is illegal");
+        checkArgument(Range.range(0, CLOSED, containers.length, OPEN).contains(partitionId), "partitionId: %s is illegal", partitionId);
         return containers[partitionId];
+    }
+
+    @Override
+    public void clearPartitionReplica(int partitionId) {
+        CounterContainer container = getContainerByPartitionId(partitionId);
+        container.clear();
+    }
+
+    /**
+     * Method creates operation migration and returns all the data in the partition that is going to be moved
+     */
+    @Override
+    public Operation prepareReplicationOperation(PartitionReplicationEvent event) {
+        CounterContainer container = getContainerByPartitionId(event.getPartitionId());
+        Map<String, Integer> migrationData = container.toMigrationData();
+        return migrationData.isEmpty() ? null : new MigOperation(migrationData);
+    }
+
+    /**
+     * Committing means that we clear the container for the partition of the old owner
+     */
+    @Override
+    public void commitMigration(PartitionMigrationEvent event) {
+        if (event.getMigrationEndpoint() == MigrationEndpoint.SOURCE) {
+            CounterContainer container = getContainerByPartitionId(event.getPartitionId());
+            container.clear();
+            logger.debug("Commit migration data from partition: {}, endpoint: {}",
+                    event.getPartitionId(), event.getMigrationEndpoint());
+        }
+    }
+
+    @Override
+    public void rollbackMigration(PartitionMigrationEvent event) {
+        if (event.getMigrationEndpoint() == MigrationEndpoint.DESTINATION) {
+            CounterContainer container = getContainerByPartitionId(event.getPartitionId());
+            container.clear();
+            logger.debug("Rollback migration data from partition: {}, endpoint: {}",
+                    event.getPartitionId(), event.getMigrationEndpoint());
+        }
+    }
+
+    @Override
+    public void beforeMigration(PartitionMigrationEvent event) {
+        logger.debug("Before migration operation; partition: {}, endpoint: {}",
+                event.getPartitionId(), event.getMigrationEndpoint());
     }
 }

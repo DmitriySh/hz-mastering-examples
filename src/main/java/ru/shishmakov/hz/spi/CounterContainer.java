@@ -30,14 +30,26 @@ public class CounterContainer {
         return counters.get(objectId);
     }
 
+    /**
+     * This method is called for two reasons:<br/>
+     * - the partition migration has succeeded and the old partition owner can get rid of all the data in partition<br/>
+     * - partition migration operation fails and the new partition owner needs to roll back its changes
+     */
     public void clear() {
         counters.clear();
     }
 
+    /**
+     * This method is called on the member of new partition owner
+     */
     public void applyMigrationData(Map<String, Integer> migrationData) {
         counters.putAll(migrationData);
     }
 
+    /**
+     * This method is called when Hazelcast wants to start the migration of the partition
+     * on the member that currently owns the partition
+     */
     public Map<String, Integer> toMigrationData() {
         return new HashMap<>(counters);
     }

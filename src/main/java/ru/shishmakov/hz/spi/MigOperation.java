@@ -11,7 +11,6 @@ import java.lang.invoke.MethodHandles;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 /**
  * During the execution of a migration, no other operations will be running in that partition.
@@ -19,17 +18,18 @@ import java.util.stream.IntStream;
  *
  * @author Dmitriy Shishmakov on 24.10.16
  */
-public class MigrationOperation extends AbstractOperation {
+public class MigOperation extends AbstractOperation {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private Map<String, Integer> migrationData = Collections.emptyMap();
 
-    public MigrationOperation() {
+    public MigOperation() {
         /* need to be */
     }
 
-    public MigrationOperation(Map<String, Integer> migrationData) {
-        this.migrationData = migrationData;
+    public MigOperation(Map<String, Integer> data) {
+        this.migrationData = data;
+        logger.debug("Create instance: {}, migration data size: {}", this.getClass().getSimpleName(), data.size());
     }
 
     @Override
@@ -37,7 +37,7 @@ public class MigrationOperation extends AbstractOperation {
         CounterService service = getService();
         CounterContainer container = service.getContainerByPartitionId(getPartitionId());
         container.applyMigrationData(migrationData);
-        logger.debug("Apply migration value: {}, address: {}", migrationData, getNodeEngine().getThisAddress());
+        logger.debug("Apply migration data: {}, address: {}", migrationData, getNodeEngine().getThisAddress());
     }
 
     @Override
@@ -56,14 +56,10 @@ public class MigrationOperation extends AbstractOperation {
     @Override
     protected void readInternal(ObjectDataInput in) throws IOException {
         int size = in.readInt();
-        Map<String, Integer> map = new HashMap<>();
-        IntStream.range(0, size).forEach(t -> {
-            try {
-                map.put(in.readUTF(), in.readInt());
-            } catch (IOException e) {
-                logger.debug("Error", e);
-            }
-        });
+        Map<String, Integer> map = new HashMap<>(size);
+        for (int i = 0; i < size; i++) {
+            map.put(in.readUTF(), in.readInt());
+        }
         migrationData = map;
 
     }

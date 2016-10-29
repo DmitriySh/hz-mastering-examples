@@ -8,9 +8,11 @@ import ru.shishmakov.hz.spi.Counter;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static ru.shishmakov.hz.spi.CounterService.NAME;
 
 /**
@@ -28,9 +30,9 @@ public class Chapter16_ExtendingHazelcast {
     private static void createCustomDistributedCounterWithSPI() {
         logger.debug("-- Service Provider Interface custom distributed counter --");
 
-        int count = 3;
+        int count = 2;
         List<HazelcastInstance> hzs = IntStream.range(0, count)
-                .mapToObj(i -> HzClusterConfig.buildFromFileDirectly("src/main/resources/hazelcast-ch16.xml"))
+                .mapToObj(i -> getCustomHazelcastInstance())
                 .collect(Collectors.toList());
         logger.debug("Create {} hz cluster instances", hzs.size());
 
@@ -39,19 +41,34 @@ public class Chapter16_ExtendingHazelcast {
                 .collect(Collectors.toList());
         logger.debug("Create {} distributed instances of {} objects", counters.size(), NAME);
 
+        IntStream.range(0, 5).forEach(i -> {
+            counters.forEach(c -> c.increment(1));
+            logger.debug("{} step increment values for each DO", i, counters.size(), NAME);
+        });
+
+
+        /*  --------------------------- */
+        logger.debug("create new HZ instance and data should be migrate ");
+        getCustomHazelcastInstance();
+        sleep(3, SECONDS);
         counters.forEach(c -> c.increment(1));
-        logger.debug("1 step increment values for each DO", counters.size(), NAME);
-        counters.forEach(c -> c.increment(1));
-        logger.debug("2 step increment values for each DO", counters.size(), NAME);
-        counters.forEach(c -> c.increment(1));
-        logger.debug("3 step increment values for each DO", counters.size(), NAME);
+        logger.debug("6 step increment values for each DO", counters.size(), NAME);
+
 
         logger.debug("Finish increment", counters.size(), NAME);
+        sleep(3, SECONDS);
+    }
+
+    private static void sleep(int sleep, TimeUnit unit) {
         try {
-            Thread.sleep(3_000);
+            Thread.sleep(unit.toMillis(sleep));
         } catch (InterruptedException e) {
             logger.debug("Error", e);
         }
+    }
+
+    private static HazelcastInstance getCustomHazelcastInstance() {
+        return HzClusterConfig.buildFromFileDirectly("src/main/resources/hazelcast-ch16.xml");
     }
 
 }
