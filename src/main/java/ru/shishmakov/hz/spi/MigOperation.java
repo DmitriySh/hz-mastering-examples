@@ -20,8 +20,13 @@ import java.util.Map;
  */
 public class MigOperation extends AbstractOperation {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final String CLASS_NAME = MigOperation.class.getSimpleName();
 
     private Map<String, Integer> migrationData = Collections.emptyMap();
+
+    {
+        logger.debug("Create instance {}", CLASS_NAME);
+    }
 
     public MigOperation() {
         /* need to be */
@@ -29,7 +34,7 @@ public class MigOperation extends AbstractOperation {
 
     public MigOperation(Map<String, Integer> data) {
         this.migrationData = data;
-        logger.debug("Create instance: {}, migration data size: {}", this.getClass().getSimpleName(), data.size());
+        logger.debug("{}, migration data: {}", this.getClass().getSimpleName(), data);
     }
 
     @Override

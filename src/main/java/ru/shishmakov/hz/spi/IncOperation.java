@@ -3,6 +3,8 @@ package ru.shishmakov.hz.spi;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.spi.AbstractOperation;
+import com.hazelcast.spi.BackupAwareOperation;
+import com.hazelcast.spi.Operation;
 import com.hazelcast.spi.PartitionAwareOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,12 +17,17 @@ import java.lang.invoke.MethodHandles;
  *
  * @author Dmitriy Shishmakov on 19.10.16
  */
-class IncOperation extends AbstractOperation implements PartitionAwareOperation {
+class IncOperation extends AbstractOperation implements PartitionAwareOperation, BackupAwareOperation {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final String CLASS_NAME = IncOperation.class.getSimpleName();
 
     private String objectId;
     private int delta;
     private int value;
+
+    {
+        logger.debug("Create instance {}", CLASS_NAME);
+    }
 
     public IncOperation() {
         /* need to be */
@@ -81,5 +88,37 @@ class IncOperation extends AbstractOperation implements PartitionAwareOperation 
         super.readInternal(in);
         objectId = in.readUTF();
         delta = in.readInt();
+    }
+
+    /**
+     * @return true is the operation needs a backup; false is otherwise
+     */
+    @Override
+    public boolean shouldBackup() {
+        return true;
+    }
+
+    /**
+     * @return count of synchronous backups
+     */
+    @Override
+    public int getSyncBackupCount() {
+        return 1;
+    }
+
+    /**
+     * @return count of asynchronous backups
+     */
+    @Override
+    public int getAsyncBackupCount() {
+        return 0;
+    }
+
+    /**
+     * @return operation that is going to make the backup
+     */
+    @Override
+    public Operation getBackupOperation() {
+        return new IncBackupOperation(objectId, delta);
     }
 }
