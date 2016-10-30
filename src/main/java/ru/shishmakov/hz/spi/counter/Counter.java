@@ -1,4 +1,4 @@
-package ru.shishmakov.hz.spi;
+package ru.shishmakov.hz.spi.counter;
 
 import com.hazelcast.core.DistributedObject;
 

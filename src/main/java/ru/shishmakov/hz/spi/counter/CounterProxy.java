@@ -1,4 +1,4 @@
-package ru.shishmakov.hz.spi;
+package ru.shishmakov.hz.spi.counter;
 
 import com.hazelcast.core.ICompletableFuture;
 import com.hazelcast.spi.AbstractDistributedObject;
@@ -9,8 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
-
-import static ru.shishmakov.hz.spi.CounterService.NAME;
 
 /**
  * Hazelcast does remote call through a Proxy - on the client side, you get a proxy that exposes your methods.
@@ -31,7 +29,7 @@ public class CounterProxy extends AbstractDistributedObject<CounterService> impl
 
     @Override
     public String getName() {
-        return NAME;
+        return CounterService.NAME;
     }
 
     @Override
@@ -51,7 +49,7 @@ public class CounterProxy extends AbstractDistributedObject<CounterService> impl
         final int partitionId = engine.getPartitionService().getPartitionId(objectId);
         IncOperation operation = new IncOperation(objectId, delta);
 
-        InvocationBuilder builder = engine.getOperationService().createInvocationBuilder(NAME, operation, partitionId);
+        InvocationBuilder builder = engine.getOperationService().createInvocationBuilder(CounterService.NAME, operation, partitionId);
         ICompletableFuture<Integer> future = builder.invoke();
         try {
             return future.get();

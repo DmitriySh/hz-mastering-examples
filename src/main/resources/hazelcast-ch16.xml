@@ -19,7 +19,7 @@
     <services>
         <service enabled="true">
             <name>CounterService</name>
-            <class-name>ru.shishmakov.hz.spi.CounterService</class-name>
+            <class-name>ru.shishmakov.hz.spi.counter.CounterService</class-name>
             <properties>
                 <property name="key">value</property>
             </properties>
