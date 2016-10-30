@@ -1,5 +1,6 @@
 package ru.shishmakov.ch;
 
+import com.google.common.collect.Iterators;
 import com.hazelcast.core.HazelcastInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,13 +9,16 @@ import ru.shishmakov.hz.spi.counter.Counter;
 import ru.shishmakov.hz.spi.counter.CounterService;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static ru.shishmakov.hz.spi.counter.CounterService.NAME;
+import static ru.shishmakov.hz.spi.counter.CounterService.CLASS_NAME;
 
 /**
  * @author Dmitriy Shishmakov on 17.10.16
@@ -44,39 +48,57 @@ public class Chapter16_ExtendingHazelcast {
     private static void createCustomDistributedCounterWithSPI() {
         logger.debug("-- Service Provider Interface custom distributed counter --");
 
-        int count = 2;
-        List<HazelcastInstance> hzs = IntStream.range(0, count)
+        int hzCnt = 2;
+        List<HazelcastInstance> hzs = IntStream.rangeClosed(1, hzCnt)
                 .mapToObj(i -> getCustomHazelcastInstance())
                 .collect(Collectors.toList());
+        Iterator<HazelcastInstance> iterator = Iterators.cycle(hzs);
         logger.debug("Create {} hz cluster instances", hzs.size());
 
-        List<Counter> counters = IntStream.range(0, count)
-                .mapToObj(i -> hzs.get(i).<Counter>getDistributedObject("CounterService", "cs" + i))
-                .collect(Collectors.toList());
-        logger.debug("Get {} distributed instances of {} objects", counters.size(), NAME);
-        incrementCounters(counters, 5);
+        int objectCnt = 4;
+        int invokes = 5;
+        List<Counter> counters = getCounterService(objectCnt, iterator::next);
+        logger.debug("Get {} distributed instances of {} objects", counters.size(), CLASS_NAME);
+        incrementCounter(counters, invokes);
 
 
-        /*  ------------ new cluster node --------------- */
+        /*  ------------ add new cluster hz node --------------- */
         logger.debug("create new HZ instance and data should be migrate ");
-        HazelcastInstance hz = getCustomHazelcastInstance();
+        HazelcastInstance newHz = getCustomHazelcastInstance();
         sleep(3, SECONDS);
 
-        counters = IntStream.range(0, count + 1)
-                .mapToObj(i -> hz.<Counter>getDistributedObject("CounterService", "cs" + i))
-                .collect(Collectors.toList());
-        logger.debug("Get {} distributed instances of {} objects", counters.size(), NAME);
-        incrementCounters(counters, 5);
+        /*  ------------ add new Counter DO --------------- */
+        counters = getCounterService(objectCnt, () -> newHz);
+        Counter newtCounter = newHz.getDistributedObject("CounterService", "cs" + (objectCnt + 1));
+        counters.add(newtCounter);
+        logger.debug("Get {} distributed instances of {} objects", counters.size(), CLASS_NAME);
 
-        logger.debug("Finish increment", counters.size(), NAME);
+        incrementCounter(counters, invokes);
+        logger.debug("Finish increment {} : {}", counters.size(), CLASS_NAME);
+
+        counters = getCounterService(objectCnt + 1, () -> newHz);
+        printCounter(counters, invokes);
+
         sleep(3, SECONDS);
     }
 
-    private static void incrementCounters(List<Counter> counters, int invokes) {
-        for (int i = 1; i <= invokes; i++) {
+    private static List<Counter> getCounterService(int doCnt, Supplier<HazelcastInstance> hz) {
+        return IntStream.rangeClosed(1, doCnt)
+                .mapToObj(i -> hz.get().<Counter>getDistributedObject("CounterService", "cs" + i))
+                .collect(Collectors.toList());
+    }
+
+    private static void incrementCounter(Collection<Counter> counters, int invokes) {
+        IntStream.rangeClosed(1, invokes).forEach(i -> {
             counters.forEach(c -> c.increment(1));
-            logger.debug("{} step increment values for each DO", i, counters.size(), NAME);
-        }
+            logger.debug("--> {} step increment values: {} for each DO: {}", i, counters.size(), CLASS_NAME);
+        });
+        logger.debug("--------- :: + {} increments done :: ---------", invokes);
+    }
+
+    private static void printCounter(List<Counter> counters, int invokes) {
+        IntStream.range(0, counters.size()).forEach(i ->
+                logger.debug("<-- cs{} {} has result value: {} expected: {}", i + 1, CLASS_NAME, counters.get(i).get(), invokes * 2));
     }
 
     private static void sleep(int sleep, TimeUnit unit) {

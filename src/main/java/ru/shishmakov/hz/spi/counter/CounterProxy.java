@@ -4,6 +4,7 @@ import com.hazelcast.core.ICompletableFuture;
 import com.hazelcast.spi.AbstractDistributedObject;
 import com.hazelcast.spi.InvocationBuilder;
 import com.hazelcast.spi.NodeEngine;
+import com.hazelcast.spi.Operation;
 import com.hazelcast.util.ExceptionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ public class CounterProxy extends AbstractDistributedObject<CounterService> impl
 
     @Override
     public String getName() {
-        return CounterService.NAME;
+        return CounterService.CLASS_NAME;
     }
 
     @Override
@@ -45,11 +46,20 @@ public class CounterProxy extends AbstractDistributedObject<CounterService> impl
      */
     @Override
     public int increment(int delta) {
+        IncOperation operation = new IncOperation(objectId, delta);
+        return processOperation(operation);
+    }
+
+    @Override
+    public int get() {
+        GetOperation operation = new GetOperation(objectId);
+        return processOperation(operation);
+    }
+
+    private int processOperation(Operation operation) {
         NodeEngine engine = getNodeEngine();
         final int partitionId = engine.getPartitionService().getPartitionId(objectId);
-        IncOperation operation = new IncOperation(objectId, delta);
-
-        InvocationBuilder builder = engine.getOperationService().createInvocationBuilder(CounterService.NAME, operation, partitionId);
+        InvocationBuilder builder = engine.getOperationService().createInvocationBuilder(CounterService.CLASS_NAME, operation, partitionId);
         ICompletableFuture<Integer> future = builder.invoke();
         try {
             return future.get();

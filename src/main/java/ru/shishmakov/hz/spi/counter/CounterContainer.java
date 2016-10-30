@@ -30,12 +30,12 @@ public class CounterContainer {
         logger.debug("{} remove key: {}", CLASS_NAME, objectId);
     }
 
-    public Integer increment(String objectId, int delta) {
+    public int increment(String objectId, int delta) {
         return counters.merge(objectId, delta, (a, b) -> a + b);
     }
 
-    public Integer getCount(String objectId) {
-        return counters.get(objectId);
+    public int getCount(String objectId) {
+        return counters.getOrDefault(objectId, 0);
     }
 
     /**

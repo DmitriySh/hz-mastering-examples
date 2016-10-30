@@ -24,8 +24,7 @@ import static com.google.common.collect.BoundType.OPEN;
 public class CounterService implements ManagedService, RemoteService, MigrationAwareService {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public static final String NAME = "CounterService";
-    private static final String CLASS_NAME = CounterService.class.getSimpleName();
+    public static final String CLASS_NAME = CounterService.class.getSimpleName();
 
     private CounterContainer[] containers = new CounterContainer[0];
 
@@ -48,7 +47,7 @@ public class CounterService implements ManagedService, RemoteService, MigrationA
             containers[i] = new CounterContainer();
         }
         this.containers = containers;
-        logger.debug("Init {} with partitions CounterContainer[{}]", NAME, containers.length);
+        logger.debug("Init {} with partitions CounterContainer[{}]", CLASS_NAME, containers.length);
     }
 
     /**
