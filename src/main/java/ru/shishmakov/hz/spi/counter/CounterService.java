@@ -16,6 +16,9 @@ import static com.google.common.collect.BoundType.CLOSED;
 import static com.google.common.collect.BoundType.OPEN;
 
 /**
+ * The {@link CounterService} is the gateway into the Hazelcast internals.
+ * Through this gateway, you will be able to create proxies, participate in partition migration, and so on.
+ *
  * @author Dmitriy Shishmakov on 19.10.16
  */
 public class CounterService implements ManagedService, RemoteService, MigrationAwareService {

@@ -1,5 +1,9 @@
 package ru.shishmakov.hz.spi.counter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +16,9 @@ import java.util.Map;
  * @author Dmitriy Shishmakov on 23.10.16
  */
 public class CounterContainer {
+    private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final String CLASS_NAME = CounterContainer.class.getSimpleName();
+
     private final Map<String, Integer> counters = new HashMap<>();
 
     public void init(String objectId) {
@@ -20,6 +27,7 @@ public class CounterContainer {
 
     public void destroy(String objectId) {
         counters.remove(objectId);
+        logger.debug("{} remove key: {}", CLASS_NAME, objectId);
     }
 
     public Integer increment(String objectId, int delta) {

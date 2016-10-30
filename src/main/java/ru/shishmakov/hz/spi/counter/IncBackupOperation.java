@@ -38,10 +38,13 @@ public class IncBackupOperation extends AbstractOperation implements BackupOpera
 
     @Override
     public void run() throws Exception {
+        final int partitionId = getPartitionId();
         CounterService service = getService();
-        CounterContainer container = service.getContainerByPartitionId(getPartitionId());
+        CounterContainer container = service.getContainerByPartitionId(partitionId);
         container.increment(objectId, delta);
-        logger.debug("Executing backup {}.increment() on: {}", objectId, getNodeEngine().getThisAddress());
+        int value = container.getCount(objectId);
+        logger.debug("Executing backup {}.increment() value: {} partition: {} on: {}",
+                objectId, value, partitionId, getNodeEngine().getThisAddress());
     }
 
     @Override

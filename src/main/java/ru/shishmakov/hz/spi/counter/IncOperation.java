@@ -43,11 +43,13 @@ class IncOperation extends AbstractOperation implements PartitionAwareOperation,
      */
     @Override
     public void run() throws Exception {
+        final int partitionId = getPartitionId();
         CounterService service = getService();
-        CounterContainer container = service.getContainerByPartitionId(getPartitionId());
+        CounterContainer container = service.getContainerByPartitionId(partitionId);
         container.increment(objectId, delta);
         value = container.getCount(objectId);
-        logger.debug("Execute increment on: {}, value: {}, address: {}", objectId, value, getNodeEngine().getThisAddress());
+        logger.debug("Execute {}.increment value: {} partition: {} on: {}",
+                objectId, value, partitionId, getNodeEngine().getThisAddress());
     }
 
     /**

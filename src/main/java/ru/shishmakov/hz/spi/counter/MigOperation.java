@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +21,7 @@ public class MigOperation extends AbstractOperation {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private static final String CLASS_NAME = MigOperation.class.getSimpleName();
 
-    private Map<String, Integer> migrationData = Collections.emptyMap();
+    private Map<String, Integer> migrationData = new HashMap<>();
 
     {
         logger.debug("Create instance {}", CLASS_NAME);
@@ -34,15 +33,17 @@ public class MigOperation extends AbstractOperation {
 
     public MigOperation(Map<String, Integer> data) {
         this.migrationData = data;
-        logger.debug("{}, migration data: {}", this.getClass().getSimpleName(), data);
+        logger.debug("Create {}, migration data: {}", this.getClass().getSimpleName(), data);
     }
 
     @Override
     public void run() throws Exception {
+        final int partitionId = getPartitionId();
         CounterService service = getService();
-        CounterContainer container = service.getContainerByPartitionId(getPartitionId());
+        CounterContainer container = service.getContainerByPartitionId(partitionId);
         container.applyMigrationData(migrationData);
-        logger.debug("Apply migration data: {}, address: {}", migrationData, getNodeEngine().getThisAddress());
+        logger.debug("Apply migration data: {}, container data: {}, partition: {}, on: {}",
+                migrationData, container.toMigrationData(), partitionId, getNodeEngine().getThisAddress());
     }
 
     @Override

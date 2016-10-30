@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.shishmakov.hz.cfg.HzClusterConfig;
 import ru.shishmakov.hz.spi.counter.Counter;
+import ru.shishmakov.hz.spi.counter.CounterService;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
@@ -27,6 +28,19 @@ public class Chapter16_ExtendingHazelcast {
         createCustomDistributedCounterWithSPI();
     }
 
+    /**
+     * Step by step:<br/>
+     * <ol>
+     * <li>Create {@link HazelcastInstance} from 'hazelcast-ch16.xml'</li>
+     * <li>Create {@link CounterService} instance for each hz instance
+     * <ul>
+     * <li>Ea</li>
+     * <li>2</li>
+     * </ul>
+     * </li>
+     * </li>
+     * </ol>
+     */
     private static void createCustomDistributedCounterWithSPI() {
         logger.debug("-- Service Provider Interface custom distributed counter --");
 
@@ -39,24 +53,30 @@ public class Chapter16_ExtendingHazelcast {
         List<Counter> counters = IntStream.range(0, count)
                 .mapToObj(i -> hzs.get(i).<Counter>getDistributedObject("CounterService", "cs" + i))
                 .collect(Collectors.toList());
-        logger.debug("Create {} distributed instances of {} objects", counters.size(), NAME);
-
-        IntStream.range(0, 5).forEach(i -> {
-            counters.forEach(c -> c.increment(1));
-            logger.debug("{} step increment values for each DO", i, counters.size(), NAME);
-        });
+        logger.debug("Get {} distributed instances of {} objects", counters.size(), NAME);
+        incrementCounters(counters, 5);
 
 
-        /*  --------------------------- */
+        /*  ------------ new cluster node --------------- */
         logger.debug("create new HZ instance and data should be migrate ");
-        getCustomHazelcastInstance();
+        HazelcastInstance hz = getCustomHazelcastInstance();
         sleep(3, SECONDS);
-        counters.forEach(c -> c.increment(1));
-        logger.debug("6 step increment values for each DO", counters.size(), NAME);
 
+        counters = IntStream.range(0, count + 1)
+                .mapToObj(i -> hz.<Counter>getDistributedObject("CounterService", "cs" + i))
+                .collect(Collectors.toList());
+        logger.debug("Get {} distributed instances of {} objects", counters.size(), NAME);
+        incrementCounters(counters, 5);
 
         logger.debug("Finish increment", counters.size(), NAME);
         sleep(3, SECONDS);
+    }
+
+    private static void incrementCounters(List<Counter> counters, int invokes) {
+        for (int i = 1; i <= invokes; i++) {
+            counters.forEach(c -> c.increment(1));
+            logger.debug("{} step increment values for each DO", i, counters.size(), NAME);
+        }
     }
 
     private static void sleep(int sleep, TimeUnit unit) {
