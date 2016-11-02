@@ -17,7 +17,7 @@ import java.lang.invoke.MethodHandles;
  *
  * @author Dmitriy Shishmakov on 19.10.16
  */
-class IncOperation extends AbstractOperation implements PartitionAwareOperation, BackupAwareOperation {
+public class IncOperation extends AbstractOperation implements PartitionAwareOperation, BackupAwareOperation {
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private static final String CLASS_NAME = IncOperation.class.getSimpleName();
 

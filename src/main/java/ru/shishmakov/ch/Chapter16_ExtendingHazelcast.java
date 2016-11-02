@@ -2,16 +2,15 @@ package ru.shishmakov.ch;
 
 import com.google.common.collect.Iterators;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.spi.InvocationBuilder;
+import com.hazelcast.spi.NodeEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.shishmakov.hz.cfg.HzClusterConfig;
-import ru.shishmakov.hz.spi.counter.Counter;
-import ru.shishmakov.hz.spi.counter.CounterService;
+import ru.shishmakov.hz.spi.counter.*;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -35,14 +34,42 @@ public class Chapter16_ExtendingHazelcast {
     /**
      * Step by step:<br/>
      * <ol>
-     * <li>Create {@link HazelcastInstance} from 'hazelcast-ch16.xml'</li>
-     * <li>Create {@link CounterService} instance for each hz instance
-     * <ul>
-     * <li>Ea</li>
-     * <li>2</li>
-     * </ul>
-     * </li>
-     * </li>
+         * <li>Creates {@link HazelcastInstance} from 'hazelcast.xml'</li>
+         * <li>Creates {@link CounterService} instance for each hz instance
+             * <ul>
+                 * <li>each instance invoke {@link CounterService#init(NodeEngine, Properties)}</li>
+                 * <li>each instance contains array of {@link CounterContainer} with capacity 271 (partitions)</li>
+             * </ul>
+         * </li>
+         * <li>Creates DO with custom name (objectId) {@link CounterService#createDistributedObject(String)}
+             * <ul>
+                *<li>finds partitionId by objectId (one of 271)</li>
+                *<li>gets instance of {@link CounterContainer} by partitionId</li>
+                *<li>each instance of {@link CounterContainer} contains inner field {@link Map}
+                * where <u>key</u> is objectId and <u>value</u> is counter value</li>
+                *<li>creates and return instance of {@link CounterProxy} that hold instances of {@link String} objectId,
+                * {@link NodeEngine} nodeEngine, {@link CounterService} service</li>
+             * </ul>
+         * </li>
+         * <li>Invokes {@link CounterProxy#increment(int)}
+            * <ul>
+                * <li>finds partitionId by objectId (one of 271)</li>
+                * <li>creates instance of {@link IncOperation} to perform distributed increment on exact objectId</li>
+                * <li>creates instance of {@link InvocationBuilder} to perform the operation on the cluster</li>
+                * <li>instance of {@link InvocationBuilder} could create backup operation {@link IncBackupOperation}
+                * to make aware operation {@link IncOperation}</li>
+                * <li>waits response from {@link InvocationBuilder}</li>
+            * </ul>
+         * </li>
+         * <li>Instance of {@link InvocationBuilder} invoke {@link IncOperation#run()}
+            * <ul>
+                * <li>gets instance of {@link CounterService} for that operation</li>
+                * <li>gets instance of {@link CounterContainer} by partitionId</li>
+                * <li>to increase the value for that objectId and save result value</li>
+                * <li>invokes method {@link IncOperation#returnsResponse()} to define could the operation return result</li>
+                * <li>invokes method {@link IncOperation#getResponse()}</li>
+            * </ul>
+         * </li>
      * </ol>
      */
     private static void createCustomDistributedCounterWithSPI() {
