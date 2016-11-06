@@ -60,11 +60,10 @@ public class CounterProxy extends AbstractDistributedObject<CounterService> impl
         NodeEngine engine = getNodeEngine();
         final int partitionId = engine.getPartitionService().getPartitionId(objectId);
         InvocationBuilder builder = engine.getOperationService().createInvocationBuilder(CounterService.CLASS_NAME, operation, partitionId);
-        ICompletableFuture<Integer> future = builder.invoke();
         try {
+            ICompletableFuture<Integer> future = builder.invoke();
             return future.get();
         } catch (Exception e) {
-            logger.error("Error", e);
 //            throw Throwables.propagate(e);
             throw ExceptionUtil.rethrow(e);
         }

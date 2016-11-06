@@ -46,10 +46,10 @@ public class IncOperation extends AbstractOperation implements PartitionAwareOpe
         final int partitionId = getPartitionId();
         CounterService service = getService();
         CounterContainer container = service.getContainerByPartitionId(partitionId);
-        container.increment(objectId, delta);
-        value = container.getCount(objectId);
+        final int value = container.increment(objectId, delta);
         logger.debug("Execute {}.increment value: {} partition: {} on: {}",
                 objectId, value, partitionId, getNodeEngine().getThisAddress());
+        this.value = value;
     }
 
     /**

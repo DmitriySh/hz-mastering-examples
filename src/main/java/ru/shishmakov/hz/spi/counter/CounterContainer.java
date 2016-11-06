@@ -31,7 +31,8 @@ public class CounterContainer {
     }
 
     public int increment(String objectId, int delta) {
-        return counters.merge(objectId, delta, (a, b) -> a + b);
+        counters.put(objectId, getCount(objectId) + delta);
+        return getCount(objectId);
     }
 
     public int getCount(String objectId) {

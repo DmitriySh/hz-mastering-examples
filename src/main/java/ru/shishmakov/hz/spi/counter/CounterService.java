@@ -109,9 +109,18 @@ public class CounterService implements ManagedService, RemoteService, MigrationA
      */
     @Override
     public Operation prepareReplicationOperation(PartitionReplicationEvent event) {
+        if (event.getReplicaIndex() > 1) {
+            return null;
+        }
         CounterContainer container = getContainerByPartitionId(event.getPartitionId());
         Map<String, Integer> migrationData = container.toMigrationData();
         return migrationData.isEmpty() ? null : new MigOperation(migrationData);
+    }
+
+    @Override
+    public void beforeMigration(PartitionMigrationEvent event) {
+        logger.debug("Before migration operation; partition: {}, endpoint: {}",
+                event.getPartitionId(), event.getMigrationEndpoint());
     }
 
     /**
@@ -120,8 +129,7 @@ public class CounterService implements ManagedService, RemoteService, MigrationA
     @Override
     public void commitMigration(PartitionMigrationEvent event) {
         if (event.getMigrationEndpoint() == MigrationEndpoint.SOURCE) {
-            CounterContainer container = getContainerByPartitionId(event.getPartitionId());
-            container.clear();
+            clearPartitionReplica(event);
             logger.debug("Commit migration data from partition: {}, endpoint: {}",
                     event.getPartitionId(), event.getMigrationEndpoint());
         }
@@ -130,16 +138,14 @@ public class CounterService implements ManagedService, RemoteService, MigrationA
     @Override
     public void rollbackMigration(PartitionMigrationEvent event) {
         if (event.getMigrationEndpoint() == MigrationEndpoint.DESTINATION) {
-            CounterContainer container = getContainerByPartitionId(event.getPartitionId());
-            container.clear();
+            clearPartitionReplica(event);
             logger.debug("Rollback migration data from partition: {}, endpoint: {}",
                     event.getPartitionId(), event.getMigrationEndpoint());
         }
     }
 
-    @Override
-    public void beforeMigration(PartitionMigrationEvent event) {
-        logger.debug("Before migration operation; partition: {}, endpoint: {}",
-                event.getPartitionId(), event.getMigrationEndpoint());
+    private void clearPartitionReplica(PartitionMigrationEvent event) {
+        CounterContainer container = getContainerByPartitionId(event.getPartitionId());
+        container.clear();
     }
 }

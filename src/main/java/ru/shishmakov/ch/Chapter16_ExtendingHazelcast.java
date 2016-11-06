@@ -16,6 +16,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static ru.shishmakov.hz.spi.counter.CounterService.CLASS_NAME;
 
@@ -76,15 +77,15 @@ public class Chapter16_ExtendingHazelcast {
         logger.debug("-- Service Provider Interface custom distributed counter --");
 
         int hzCnt = 2;
-        List<HazelcastInstance> hzs = IntStream.rangeClosed(1, hzCnt)
+        List<HazelcastInstance> hzList = IntStream.rangeClosed(1, hzCnt)
                 .mapToObj(i -> getCustomHazelcastInstance())
                 .collect(Collectors.toList());
-        Iterator<HazelcastInstance> iterator = Iterators.cycle(hzs);
-        logger.debug("Create {} hz cluster instances", hzs.size());
+        Iterator<HazelcastInstance> hzIterator = Iterators.cycle(hzList);
+        logger.debug("Create {} hz cluster instances", hzList.size());
 
         int objectCnt = 4;
         int invokes = 5;
-        List<Counter> counters = getCounterService(objectCnt, iterator::next);
+        List<Counter> counters = getCounterService(objectCnt, hzIterator::next);
         logger.debug("Get {} distributed instances of {} objects", counters.size(), CLASS_NAME);
         incrementCounter(counters, invokes);
 
@@ -95,23 +96,23 @@ public class Chapter16_ExtendingHazelcast {
         sleep(3, SECONDS);
 
         /*  ------------ add new Counter DO --------------- */
-        counters = getCounterService(objectCnt, () -> newHz);
-        Counter newtCounter = newHz.getDistributedObject("CounterService", "cs" + (objectCnt + 1));
-        counters.add(newtCounter);
+        counters = getCounterService(objectCnt + 1, () -> newHz);
         logger.debug("Get {} distributed instances of {} objects", counters.size(), CLASS_NAME);
 
         incrementCounter(counters, invokes);
         logger.debug("Finish increment {} : {}", counters.size(), CLASS_NAME);
 
-        counters = getCounterService(objectCnt + 1, () -> newHz);
-        printCounter(counters, invokes);
+        counters = getCounterService(objectCnt, () -> newHz);
+        Counter newtCounter = newHz.getDistributedObject("CounterService", "cs" + (objectCnt + 1));
+        printCounter(counters, invokes * 2);
+        printCounter(singletonList(newtCounter), invokes);
 
         sleep(3, SECONDS);
     }
 
     private static List<Counter> getCounterService(int doCnt, Supplier<HazelcastInstance> hz) {
         return IntStream.rangeClosed(1, doCnt)
-                .mapToObj(i -> hz.get().<Counter>getDistributedObject("CounterService", "cs" + i))
+                .mapToObj(i -> hz.get().<Counter>getDistributedObject(CLASS_NAME, "cs" + i))
                 .collect(Collectors.toList());
     }
 
@@ -125,7 +126,7 @@ public class Chapter16_ExtendingHazelcast {
 
     private static void printCounter(List<Counter> counters, int invokes) {
         IntStream.range(0, counters.size()).forEach(i ->
-                logger.debug("<-- cs{} {} has result value: {} expected: {}", i + 1, CLASS_NAME, counters.get(i).get(), invokes * 2));
+                logger.debug("<-- cs{} {} has result value: {} expected: {}", i + 1, CLASS_NAME, counters.get(i).get(), invokes));
     }
 
     private static void sleep(int sleep, TimeUnit unit) {
