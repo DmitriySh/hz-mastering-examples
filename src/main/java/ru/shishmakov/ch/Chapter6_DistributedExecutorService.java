@@ -35,7 +35,7 @@ public class Chapter6_DistributedExecutorService {
     }
 
     private static void executeGetFutureCallback(HazelcastInstance hz1, HazelcastInstance hz2) {
-        logger.debug("-- IExecutorService Future with callback--");
+        logger.debug("-- IExecutorService Future with callback --");
 
         int number = 10;
         IExecutorService service = hz1.getExecutorService("executor");

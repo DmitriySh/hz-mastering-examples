@@ -11,6 +11,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
@@ -32,9 +33,26 @@ public class Chapter4_DistributedCollections {
         HazelcastInstance hz2 = buildHZInstance();
 
 //        iQueue(hz1, service);
+        testIQueueConfiguration(hz1);
 //        iListAndISet(hz1, hz2);
 //        ringBuffer1(hz1);
-        ringBuffer2(hz1);
+//        ringBuffer2(hz1);
+    }
+
+    private static void testIQueueConfiguration(HazelcastInstance hz1) {
+        logger.debug(" -- IQueue test configuration -- ");
+
+        IQueue<Integer> configLowQueue = hz1.getQueue("queue");
+        IQueue<Integer> configUpQueue = hz1.getQueue("QUEUE");
+        IQueue<Integer> configDefaultLowQueue = hz1.getQueue("default");
+        IQueue<Integer> configDefaultUpQueue = hz1.getQueue("DEFAULT");
+        IQueue<Integer> randomQueue = hz1.getQueue("queue" + UUID.randomUUID().toString());
+
+        logger.debug("configLowQueue: {} capacity: {}", configLowQueue.getName(), configLowQueue.remainingCapacity());
+        logger.debug("configUpQueue: {} capacity: {}", configUpQueue.getName(), configUpQueue.remainingCapacity());
+        logger.debug("configDefaultLowQueue: {} capacity: {}", configDefaultLowQueue.getName(), configDefaultLowQueue.remainingCapacity());
+        logger.debug("configDefaultUpQueue: {} capacity: {}", configDefaultUpQueue.getName(), configDefaultUpQueue.remainingCapacity());
+        logger.debug("randomQueue: {} capacity: {}", randomQueue.getName(), randomQueue.remainingCapacity());
     }
 
     private static void iQueue(HazelcastInstance hz1, ExecutorService service) {

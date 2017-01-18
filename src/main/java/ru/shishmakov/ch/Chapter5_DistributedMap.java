@@ -66,9 +66,9 @@ public class Chapter5_DistributedMap {
 //        mapMapReduceNumberSum(hz1, hz2, service);
 //        mapMapReduceWordCounter(hz1, hz2, service);
 //        mapAggregations(hz1, hz2, service);
-//        mapMapStore(hz1, hz2, service);
+        mapMapStore(hz1, hz2, service);
 //        mapMultiMap(hz1, hz2, service);
-        mapReplicatedMap(hz1, hz2, service);
+//        mapReplicatedMap(hz1, hz2, service);
     }
 
     private static void mapReplicatedMap(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {

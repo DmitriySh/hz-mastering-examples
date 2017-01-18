@@ -102,6 +102,10 @@
         <max-size>100</max-size>
     </queue>
 
+    <queue name="default">
+        <max-size>17</max-size>
+    </queue>
+
     <ringbuffer name="ring1">
         <capacity>8</capacity>
         <time-to-live-seconds>300</time-to-live-seconds>
@@ -116,8 +120,10 @@
     </jobtracker>
 
     <executor-service name="executor">
-        <pool-size>5</pool-size>
+        <pool-size>6</pool-size>
         <statistics-enabled>true</statistics-enabled>
+        <!-- Queue capacity. 0 means Integer.MAX_VALUE -->
+        <queue-capacity>0</queue-capacity>
     </executor-service>
 
     <reliable-topic name="reliableTopic">
