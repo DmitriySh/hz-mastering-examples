@@ -1,6 +1,7 @@
 package ru.shishmakov.hz;
 
 import com.hazelcast.core.MapStore;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.shishmakov.ch.Chapter5_DistributedMap;
@@ -9,8 +10,8 @@ import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static ru.shishmakov.ch.Chapter5_DistributedMap.*;
 
@@ -20,7 +21,6 @@ import static ru.shishmakov.ch.Chapter5_DistributedMap.*;
 public class EmployeeMapStrore implements MapStore<String, Chapter5_DistributedMap.Employee2>, Serializable {
 
     private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
 
 
     @Override
@@ -54,9 +54,9 @@ public class EmployeeMapStrore implements MapStore<String, Chapter5_DistributedM
     @Override
     public Map<String, Chapter5_DistributedMap.Employee2> loadAll(Collection<String> keys) {
         logger.debug("loadAll keys: {}", keys);
-        Map<String, Employee2> map = new HashMap<>();
-        keys.forEach(k -> map.put(k, new Employee2(k, SHISHMAKOV)));
-        return map;
+        return keys.stream()
+                .map(k -> Pair.of(k, new Employee2(k, SHISHMAKOV)))
+                .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
     }
 
     @Override

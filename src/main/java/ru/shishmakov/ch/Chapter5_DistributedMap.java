@@ -1,5 +1,6 @@
 package ru.shishmakov.ch;
 
+import com.google.common.collect.Sets;
 import com.hazelcast.core.*;
 import com.hazelcast.map.AbstractEntryProcessor;
 import com.hazelcast.map.EntryBackupProcessor;
@@ -66,7 +67,8 @@ public class Chapter5_DistributedMap {
 //        mapMapReduceNumberSum(hz1, hz2, service);
 //        mapMapReduceWordCounter(hz1, hz2, service);
 //        mapAggregations(hz1, hz2, service);
-        mapMapStore(hz1, hz2, service);
+//        mapMapStore(hz1, hz2, service);
+        mapMapStorePrepopulate(hz1, hz2, service);
 //        mapMultiMap(hz1, hz2, service);
 //        mapReplicatedMap(hz1, hz2, service);
     }
@@ -111,6 +113,17 @@ public class Chapter5_DistributedMap {
         logger.debug("After put; key: {}, value: {}", key, multiMap1.get(key));
 
         multiMap1.destroy();
+    }
+
+    private static void mapMapStorePrepopulate(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+        logger.debug("-- IMap MapStore pre-populate values --");
+
+        IMap<String, Employee2> employees = hz1.getMap("mapMapStore");
+        employees.clear();
+        logger.debug("size: {}", employees.size());
+
+        employees.loadAll(Sets.newHashSet(DIMA, IGORE, SASHA), true);
+        logger.debug("After loadAll; size: {}", employees.size());
     }
 
     private static void mapMapStore(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
