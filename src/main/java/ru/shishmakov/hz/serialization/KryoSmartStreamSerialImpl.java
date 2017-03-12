@@ -35,25 +35,22 @@ public class KryoSmartStreamSerialImpl<T> implements StreamSerializer<T> {
     private static final int MAX_CAPACITY = 4096;
     private static final Set<Class<?>> classes = new HashSet<>();
 
-    private static final ThreadLocal<Kryo> kryoLocal = new ThreadLocal<Kryo>() {
-        @Override
-        protected Kryo initialValue() {
-            Kryo kryo = new Kryo();
-            kryo.setInstantiatorStrategy(new Kryo.DefaultInstantiatorStrategy(new StdInstantiatorStrategy()));
+    private static final ThreadLocal<Kryo> kryoLocal = ThreadLocal.withInitial(() -> {
+        Kryo kryo = new Kryo();
+        kryo.setInstantiatorStrategy(new Kryo.DefaultInstantiatorStrategy(new StdInstantiatorStrategy()));
 
-            // register JDK classes
-            UnmodifiableCollectionsSerializer.registerSerializers(kryo);
-            SynchronizedCollectionsSerializer.registerSerializers(kryo);
-            kryo.register(InvocationHandler.class, new JdkProxySerializer());
-            kryo.register(EnumMap.class, new EnumMapSerializer());
-            kryo.register(EnumSet.class, new EnumSetSerializer());
-            // ... and many others serializers from package 'de.javakaffee'
+        // register JDK classes
+        UnmodifiableCollectionsSerializer.registerSerializers(kryo);
+        SynchronizedCollectionsSerializer.registerSerializers(kryo);
+        kryo.register(InvocationHandler.class, new JdkProxySerializer());
+        kryo.register(EnumMap.class, new EnumMapSerializer());
+        kryo.register(EnumSet.class, new EnumSetSerializer());
+        // ... and many others serializers from package 'de.javakaffee'
 
-            // register user classes
-            classes.forEach(kryo::register);
-            return kryo;
-        }
-    };
+        // register user classes
+        classes.forEach(kryo::register);
+        return kryo;
+    });
 
     public KryoSmartStreamSerialImpl() {
     }

@@ -18,6 +18,7 @@ import ru.shishmakov.hz.serialization.KryoSmartStreamSerialImpl;
 
 import java.io.*;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,9 +50,9 @@ public class Chapter9_Serialization {
 //        writeStreamSerializerField(hz1, hz2);
 //        writeMapStreamSerializer(hz1, hz2);
 //        useSimpleKryoStreamSerializer(hz1, hz2);
-//        useSmartKryoStreamSerializer();
+        useSmartKryoStreamSerializer();
 //        useByteArraySerializer(hz1, hz2);
-        useDefaultGlobalSerializer(hz1, hz2);
+//        useDefaultGlobalSerializer(hz1, hz2);
     }
 
     private static void useDefaultGlobalSerializer(HazelcastInstance hz1, HazelcastInstance hz2) {
@@ -73,6 +74,7 @@ public class Chapter9_Serialization {
         // TODO: 12.09.16 fix freezing thread
         HazelcastInstance hz1 = initHzCustomNode();
         processKeyMap(hz1, new PersonStreamSerial("Dmitriy", "Shishmakov", "History"));
+        hz1.shutdown();
     }
 
     private static void useSimpleKryoStreamSerializer(HazelcastInstance hz1, HazelcastInstance hz2) {
@@ -152,11 +154,10 @@ public class Chapter9_Serialization {
 
     private static void fillSerializationConfig(SerializationConfig serialCfg) {
         try {
-            String packageName = Chapter9_Serialization.class.getPackage().getName();
+            String projectPackageName = Chapter9_Serialization.class.getPackage().getName();
             ClassPath cp = ClassPath.from(Thread.currentThread().getContextClassLoader());
             Set<Class<?>> classes = cp.getAllClasses().stream()
-                    .filter(cl -> cl.getName().contains("$"))
-                    .filter(cl -> packageName.equalsIgnoreCase(cl.getPackageName()))
+                    .filter(cl -> checkClass(cl, projectPackageName))
                     .map(cl -> {
                         try {
                             return Class.forName(cl.getName());
@@ -165,6 +166,7 @@ public class Chapter9_Serialization {
                         }
                     })
                     .filter(Objects::nonNull)
+                    .filter(cl -> isNotAbstract(cl) && isSerializableType(cl))
                     .collect(Collectors.toSet());
 
             KryoSmartStreamSerialImpl<?> kryoSerializer = new KryoSmartStreamSerialImpl<>(classes);
@@ -174,6 +176,19 @@ public class Chapter9_Serialization {
         } catch (Exception e) {
             logger.error("Error", e);
         }
+    }
+
+    private static boolean checkClass(ClassPath.ClassInfo cl, String packageName) {
+        String checkedName = cl.getPackageName();
+        return checkedName.equalsIgnoreCase(packageName) || checkedName.startsWith(packageName + ".");
+    }
+
+    private static boolean isSerializableType(Class<?> cls) {
+        return Serializable.class.isAssignableFrom(cls);
+    }
+
+    private static boolean isNotAbstract(Class<?> cls) {
+        return !Modifier.isAbstract(cls.getModifiers());
     }
 
     private static <T> void processKeyMap(HazelcastInstance hz, T key) {
@@ -672,7 +687,7 @@ public class Chapter9_Serialization {
     }
 
 
-    public abstract static class Person {
+    public abstract static class Person implements Serializable {
         protected /* not final */ String name;
         protected /* not final */ transient String surname;
         protected /* not final */ transient String hobby = "Rugby";
