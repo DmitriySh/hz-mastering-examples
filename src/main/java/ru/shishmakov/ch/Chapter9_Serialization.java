@@ -11,6 +11,7 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.*;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +73,7 @@ public class Chapter9_Serialization {
         logger.debug("-- HZ smart Kryo StreamSerializer --");
 
         // TODO: 12.09.16 fix freezing thread
-        HazelcastInstance hz1 = initHzCustomNode();
+        HazelcastInstance hz1 = initHzKryoNode();
         processKeyMap(hz1, new PersonStreamSerial("Dmitriy", "Shishmakov", "History"));
         hz1.shutdown();
     }
@@ -142,7 +143,7 @@ public class Chapter9_Serialization {
         processKeyMap(hz1, new PersonSerial("Dmitriy", "Alexandrovich", "Shishmakov", "History"));
     }
 
-    private static HazelcastInstance initHzCustomNode() {
+    private static HazelcastInstance initHzKryoNode() {
         Config config = buildClusterConfig();
         config.getNetworkConfig().setPort(5703);
         GroupConfig group = config.getGroupConfig();
@@ -157,10 +158,10 @@ public class Chapter9_Serialization {
             String projectPackageName = Chapter9_Serialization.class.getPackage().getName();
             ClassPath cp = ClassPath.from(Thread.currentThread().getContextClassLoader());
             Set<Class<?>> classes = cp.getAllClasses().stream()
-                    .filter(cl -> checkClass(cl, projectPackageName))
-                    .map(cl -> {
+                    .filter(ci -> isPackageClass(ci, projectPackageName))
+                    .map(ci -> {
                         try {
-                            return Class.forName(cl.getName());
+                            return Class.forName(ci.getName());
                         } catch (ClassNotFoundException e) {
                             return null;
                         }
@@ -178,9 +179,9 @@ public class Chapter9_Serialization {
         }
     }
 
-    private static boolean checkClass(ClassPath.ClassInfo cl, String packageName) {
+    private static boolean isPackageClass(ClassPath.ClassInfo cl, String packageName) {
         String checkedName = cl.getPackageName();
-        return checkedName.equalsIgnoreCase(packageName) || checkedName.startsWith(packageName + ".");
+        return StringUtils.equals(checkedName, packageName) || StringUtils.startsWith(checkedName, packageName + ".");
     }
 
     private static boolean isSerializableType(Class<?> cls) {
