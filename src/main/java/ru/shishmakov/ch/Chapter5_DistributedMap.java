@@ -61,14 +61,14 @@ public class Chapter5_DistributedMap {
 //        mapLeaseLock(hz1, hz2, service);
 //        mapReentrantLock(hz1, hz2, service);
 //        mapDestroyLock(hz1, hz2, service);
-//        mapEntryProcessor(hz1, hz2, service);
+        mapEntryProcessor(hz1, hz2);
 //        mapListeners(hz1, hz2, service);
 //        mapDistributedQueries(hz1, hz2, service);
 //        mapMapReduceNumberSum(hz1, hz2, service);
 //        mapMapReduceWordCounter(hz1, hz2, service);
 //        mapAggregations(hz1, hz2, service);
 //        mapMapStore(hz1, hz2, service);
-        mapMapStorePrepopulate(hz1, hz2, service);
+//        mapMapStorePrepopulate(hz1, hz2, service);
 //        mapMultiMap(hz1, hz2, service);
 //        mapReplicatedMap(hz1, hz2, service);
     }
@@ -115,7 +115,7 @@ public class Chapter5_DistributedMap {
         multiMap1.destroy();
     }
 
-    private static void mapMapStorePrepopulate(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+    private static void mapMapStorePrepopulate(HazelcastInstance hz1, HazelcastInstance hz2) {
         logger.debug("-- IMap MapStore pre-populate values --");
 
         IMap<String, Employee2> employees = hz1.getMap("mapMapStore");
@@ -126,7 +126,7 @@ public class Chapter5_DistributedMap {
         logger.debug("After loadAll; size: {}", employees.size());
     }
 
-    private static void mapMapStore(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+    private static void mapMapStore(HazelcastInstance hz1, HazelcastInstance hz2) {
         logger.debug("-- IMap MapStore --");
 
         IMap<String, Employee2> employees = hz1.getMap("mapMapStore");
@@ -155,7 +155,7 @@ public class Chapter5_DistributedMap {
         employees.destroy();
     }
 
-    private static void mapAggregations(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+    private static void mapAggregations(HazelcastInstance hz1, HazelcastInstance hz2) {
         logger.debug("-- IMap Aggregations --");
 
         IMap<String, Employee2> employees = hz1.getMap("employees");
@@ -202,7 +202,7 @@ public class Chapter5_DistributedMap {
         salaries.destroy();
     }
 
-    private static void mapMapReduceWordCounter(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+    private static void mapMapReduceWordCounter(HazelcastInstance hz1, HazelcastInstance hz2) {
         logger.debug("-- IMap MapReduce word counter --");
 
         final String[] text = {"Saturn is a planet", "Earth is a planet", "Pluto is not a planet anymore"};
@@ -231,7 +231,7 @@ public class Chapter5_DistributedMap {
         }
     }
 
-    private static void mapMapReduceNumberSum(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+    private static void mapMapReduceNumberSum(HazelcastInstance hz1, HazelcastInstance hz2) {
         logger.debug("-- IMap MapReduce number sum --");
 
         IMap<Integer, Long> map = hz1.getMap("mrMap");
@@ -274,7 +274,7 @@ public class Chapter5_DistributedMap {
         map.destroy();
     }
 
-    private static void mapDistributedQueries(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+    private static void mapDistributedQueries(HazelcastInstance hz1, HazelcastInstance hz2) {
         logger.debug("-- IMap distributed queries --");
 
         IMap<String, Employee> employees = hz2.getMap("employees");
@@ -307,7 +307,7 @@ public class Chapter5_DistributedMap {
         employees.destroy();
     }
 
-    private static void mapListeners(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+    private static void mapListeners(HazelcastInstance hz1, HazelcastInstance hz2) {
         logger.debug("-- IMap Listeners --");
 
         IMap<String, Employee> employees = hz2.getMap("employees");
@@ -325,7 +325,7 @@ public class Chapter5_DistributedMap {
         employees.destroy();
     }
 
-    private static void mapEntryProcessor(HazelcastInstance hz1, HazelcastInstance hz2, ExecutorService service) {
+    private static void mapEntryProcessor(HazelcastInstance hz1, HazelcastInstance hz2) {
         logger.debug("-- IMap EntryProcessor --");
 
         IMap<String, Employee> employees = hz2.getMap("employees");
